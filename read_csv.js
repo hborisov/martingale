@@ -15,14 +15,24 @@ var mysql_connector = (function(){
 	  host     : 'localhost',
 	  user     : 'root',
 	  password : '@bcd!234',
+	  database : 'martingale'
 	});
 
 	connection.connect();
 
 	connection.query('SELECT * from CSVData', function(err, rows, fields) {
-	  if (err) throw err;
+	  if (err) {
+	  	throw err;
+	  }
 
-	  console.log('The solution is: ', rows[0].solution);
+	  for(i=0; i<rows.length; i++) {
+	  	console.log(rows[i].DIVISION);
+	  	console.log(rows[i].MATCH_DATE);
+	  	console.log(rows[i].HOME_TEAM);
+	  	console.log(rows[i].AWAY_TEAM);
+	  	console.log(rows[i].FT_HOME_GOALS);
+	  }
+	  
 	});
 
 	connection.end();
