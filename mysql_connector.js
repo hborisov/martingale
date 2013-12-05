@@ -12,7 +12,7 @@ function MySQLConnector() {
 	});
 
 	var SELECT_MATCH_STATEMENT = "SELECT * FROM CSVData WHERE DIVISION = %1 AND MATCH_DATE = %2 AND HOME_TEAM = %3 AND AWAY_TEAM = %4";
-	var INSERT_MATCH_STATEMENT = "INSERT INTO CSVData ('DIVISION', 'MATCH_DATE', 'HOME_TEAM', 'AWAY_TEAM', 'FT_HOME_GOALS', 'FT_AWAY_GOALS', 'FT_GOALS') VALUES (%1, %2, %3, %4, %5, %6, %7)";
+	var INSERT_MATCH_STATEMENT = "INSERT INTO CSVData (DIVISION, MATCH_DATE, HOME_TEAM, AWAY_TEAM, FT_HOME_GOALS, FT_AWAY_GOALS, FT_GOALS) VALUES (%1, %2, %3, %4, %5, %6, %7)";
 
 	var _checkIfMatchExists = function(csvDataRow, cb) {
 			connection.connect();
@@ -39,7 +39,8 @@ function MySQLConnector() {
 		insertMatchQuery.setParameter('5', matchData.FT_HOME_GOALS);
 		insertMatchQuery.setParameter('6', matchData.FT_AWAY_GOALS);
 		insertMatchQuery.setParameter('7', matchData.FT_GOALS);
-		connection.query(insertMatchQuery.getQuery, cb);
+		console.log(insertMatchQuery.getQuery());
+		connection.query(insertMatchQuery.getQuery(), cb);
 		
 		connection.end();
 	};

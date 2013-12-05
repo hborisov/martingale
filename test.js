@@ -10,13 +10,13 @@ console.log(query2.getQuery());
 
 var ms = require('./mysql_connector')();
 var input = {};
-input.DIVISION = 'E1';
+input.DIVISION = 'E2';
 input.MATCH_DATE = '2013-12-04';
 input.HOME_TEAM = 'West Brom';
 input.AWAY_TEAM = 'Manchester United';
-input.FT_HOME_GOALS = '';
-input.FT_AWAY_GOALS = '';
-input.FT_GOALS = '';
+input.FT_HOME_GOALS = '2';
+input.FT_AWAY_GOALS = '3';
+input.FT_GOALS = '4';
 
 /*ms.checkIfMatchExists(input, function(err, rows, fields) {
 				if (err) {
