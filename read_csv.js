@@ -9,34 +9,7 @@ var rd = readline.createInterface({
 
 
 
-var mysql_connector = (function(){
-	var mysql      = require('mysql');
-	var connection = mysql.createConnection({
-	  host     : 'localhost',
-	  user     : 'root',
-	  password : '@bcd!234',
-	  database : 'martingale'
-	});
 
-	connection.connect();
-
-	connection.query('SELECT * from CSVData', function(err, rows, fields) {
-	  if (err) {
-	  	throw err;
-	  }
-
-	  for(i=0; i<rows.length; i++) {
-	  	console.log(rows[i].DIVISION);
-	  	console.log(rows[i].MATCH_DATE);
-	  	console.log(rows[i].HOME_TEAM);
-	  	console.log(rows[i].AWAY_TEAM);
-	  	console.log(rows[i].FT_HOME_GOALS);
-	  }
-	  
-	});
-
-	connection.end();
-}());
 
 rd.on('line', function(line) {
 	var csvValues = line.split(",");
