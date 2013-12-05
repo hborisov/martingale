@@ -10,9 +10,26 @@ console.log(query2.getQuery());
 
 var ms = require('./mysql_connector')();
 var input = {};
-input.DIVISION = 'E0';
+input.DIVISION = 'E1';
 input.MATCH_DATE = '2013-12-04';
 input.HOME_TEAM = 'West Brom';
 input.AWAY_TEAM = 'Manchester United';
-console.log(ms.checkIfMatchExists(input));
+input.FT_HOME_GOALS = '';
+input.FT_AWAY_GOALS = '';
+input.FT_GOALS = '';
+
+/*ms.checkIfMatchExists(input, function(err, rows, fields) {
+				if (err) {
+	  				throw err;
+	  			}
+
+	  			console.log((rows.length > 0) ? true : false); 
+			});*/
+ms.insertNewMatch(input, function(err, rows, fields) {
+				if (err) {
+	  				throw err;
+	  			}
+
+	  			console.log((rows.length > 0) ? true : false); 
+			});
 //ms.checkIfMatchExists(input);
