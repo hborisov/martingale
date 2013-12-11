@@ -3,6 +3,7 @@ module.exports = function(preparedStatement) {
 
 	var _setParameter = function(parameterPosition, parameterValue) {
 		var pattern = '%' + parameterPosition;
+		parameterValue = parameterValue.replace("'", "\\'");
 		statement = statement.replace(pattern, "'" + parameterValue + "'");
 	};
 
@@ -13,6 +14,5 @@ module.exports = function(preparedStatement) {
 	result.getQuery = function() {
 		return statement;
 	};
-
 	return result;
 }
