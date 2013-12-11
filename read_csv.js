@@ -3,7 +3,14 @@ var readline = require('readline');
 var http = require('http');
 var ms = require('./mysql_connector')();
 
-var request = http.get("http://www.football-data.co.uk/mmz4281/1213/E0.csv", function(response) {
+var request = http.get("http://www.football-data.co.uk/mmz4281/1112/E0.csv", function(response) {
+
+	response.on('end', function() {
+		console.log("end");
+	});
+	response.on('close', function() {
+		console.log("close");
+	});
 
 	var rd = readline.createInterface({
 	    input: response,
@@ -41,8 +48,15 @@ var request = http.get("http://www.football-data.co.uk/mmz4281/1213/E0.csv", fun
 		    	if(err) {
 		    		throw err;
 		    	}
+
+		    	console.log("end maybe?");
 		    });
 		}
+	});
+
+	rd.on('close', function() {
+		console.log("STTTTTTOOOOOOOOOP");
+		//process.exit();
 	});
 });
 
