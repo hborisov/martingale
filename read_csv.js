@@ -1,62 +1,70 @@
 var fs = require('fs');
 var readline = require('readline');
 var http = require('http');
-var ms = require('./mysql_connector')();
+var Connector = require('./connector');
 
-var request = http.get("http://www.football-data.co.uk/mmz4281/1112/E0.csv", function(response) {
+var cn = new Connector({
+	host: 'localhost',
+	user: 'root',
+	password: '@bcd!234',
+	database: 'martingale'
+});
 
-	response.on('end', function() {
-		console.log("end");
-	});
-	response.on('close', function() {
-		console.log("close");
-	});
+var counter = {};
+counter.val = 0;
 
-	var rd = readline.createInterface({
-	    input: response,
-	    output: process.stdout,
-	    terminal: false
-	});
+var rd1 = readline.createInterface({
+    input: fs.createReadStream('./../test_data/match_data.txt'),
+    output: process.stdout,
+    terminal: false
+});
 
-	rd.on('line', function(line) {
-		var csvValues = line.split(",");
+rd1.on('line', function(line) {
+    var request = http.get(line, function(response) {
 
-	    console.log("Division: " + csvValues[0]);
-	    console.log("Date: " + csvValues[1]);
-	    console.log("Home Team: " + csvValues[2]);
-	    console.log("Away Team: " + csvValues[3]);
-	    console.log("HT Goals: " + csvValues[4]);
-	    console.log("AT Goals: " + csvValues[5]);
-	    console.log("FT Result: " + csvValues[6]);
-	    console.log("============================");
+		var rd = readline.createInterface({
+		    input: response,
+		    output: process.stdout,
+		    terminal: false
+		});
 
-	//TODO: check for heading line and for empty columns which denotes a match that hasn't finished.
-		if(csvValues[0] !== 'Div' && csvValues[0] !== '') {
+		console.log("DIVISION   |   DATA   |   HOME TEAM   |   AWAY TEAM   |   HT GOALS   |   AT AWAY   |   FT RESULT");
+		rd.on('line', function(line) {
+			var csvValues = line.split(",");
 
-		    var input = {};
-			input.DIVISION = csvValues[0];
-			input.MATCH_DATE = csvValues[1];
-			input.HOME_TEAM = csvValues[2];
-			input.AWAY_TEAM = csvValues[3];
-			input.FT_HOME_GOALS = csvValues[4];
-			input.FT_AWAY_GOALS = csvValues[5];
-			input.FT_RESULT = csvValues[6];
+		    console.log(csvValues[0] + '   ' + 
+		    			csvValues[1] + '   ' +
+		    			csvValues[2] + '   ' +
+		    			csvValues[3] + '   ' +
+		    			csvValues[4] + '   ' +
+		    			csvValues[5] + '   ' +
+		    			csvValues[6]);
 
+		//TODO: check for heading line and for empty columns which denotes a match that hasn't finished.
+			if(csvValues[0] !== 'Div' && csvValues[0] !== '') {
 
-		    
-		    ms.insertIfNotExists(input, function(err, rows, fields) {
-		    	if(err) {
-		    		throw err;
-		    	}
+			    var input = {};
+				input.DIVISION = csvValues[0];
+				input.MATCH_DATE = csvValues[1];
+				input.HOME_TEAM = csvValues[2];
+				input.AWAY_TEAM = csvValues[3];
+				input.FT_HOME_GOALS = csvValues[4];
+				input.FT_AWAY_GOALS = csvValues[5];
+				input.FT_RESULT = csvValues[6];
+			    
+			    counter.val += 1;
+			    cn.insertIfMatchNotExistsWithCallback(input, function(cnt) {
+			    	cnt.val -= 1;
+			    	//console.log(cnt.val);
+			    	if(cnt.val === 0) {
+			    		process.exit();
+			    	}
 
-		    	console.log("end maybe?");
-		    });
-		}
-	});
-
-	rd.on('close', function() {
-		console.log("STTTTTTOOOOOOOOOP");
-		//process.exit();
+			    }, counter);
+			}
+		});
 	});
 });
+
+
 

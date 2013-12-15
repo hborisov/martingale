@@ -1,4 +1,5 @@
 var mysql = require('mysql');
+var async = require('async');
 
 module.exports = MySQLConnector;
 
@@ -10,18 +11,11 @@ function MySQLConnector() {
 	  password : '@bcd!234',
 	  database : 'martingale'
 	});
-	/*var pool  = mysql.createPool({
-	  host     : 'localhost',
-	  user     : 'root',
-	  password : '@bcd!234',
-	  database : 'martingale'
-	});*/
 
 	var SELECT_MATCH_STATEMENT = "SELECT * FROM CSVData WHERE DIVISION = %1 AND MATCH_DATE = str_to_date(%2, '%d/%m/%Y') AND HOME_TEAM = %3 AND AWAY_TEAM = %4";
 	var INSERT_MATCH_STATEMENT = "INSERT INTO CSVData (DIVISION, MATCH_DATE, HOME_TEAM, AWAY_TEAM, FT_HOME_GOALS, FT_AWAY_GOALS, FT_RESULT) VALUES (%1, str_to_date(%2, '%d/%m/%Y'), %3, %4, %5, %6, %7)";
 
 	var _checkIfMatchExists = function(csvDataRow, cb) {
-			//connection.connect();
 
 			var checkMatchQuery = require('./query')(SELECT_MATCH_STATEMENT);
 			checkMatchQuery.setParameter('1', csvDataRow.DIVISION);
@@ -29,16 +23,11 @@ function MySQLConnector() {
 			checkMatchQuery.setParameter('3', csvDataRow.HOME_TEAM);
 			checkMatchQuery.setParameter('4', csvDataRow.AWAY_TEAM);
 
-			//pool.getConnection(function(err, connection) {
-			  console.log(checkMatchQuery.getQuery());
-			  connection.query(checkMatchQuery.getQuery(), cb);
-			//});
-
-			//connection.end();
+	        console.log(checkMatchQuery.getQuery());
+		    connection.query(checkMatchQuery.getQuery(), cb);
 	};
 
 	var _insertNewMatch = function(matchData, cb) {
-		//connection.connect();
 		
 		var insertMatchQuery = require('./query')(INSERT_MATCH_STATEMENT);
 		insertMatchQuery.setParameter('1', matchData.DIVISION);
@@ -50,11 +39,7 @@ function MySQLConnector() {
 		insertMatchQuery.setParameter('7', matchData.FT_RESULT);
 		console.log(insertMatchQuery.getQuery());
 		
-		//pool.getConnection(function(err, connection) {
-			connection.query(insertMatchQuery.getQuery(), cb);
-		//});
-		
-		//connection.end();
+		connection.query(insertMatchQuery.getQuery(), cb);
 	};
 
 
@@ -68,8 +53,8 @@ function MySQLConnector() {
 	result.insertIfNotExists = function(csvDataRow, cb) {
 		_checkIfMatchExists(csvDataRow, function(err, rows, fields) {
 			if (err) {
-	  				throw err;
-	  			}
+	  			throw err;
+	  		}
 
 	  		console.log("Length: " + rows.length);
 	  		if (rows.length === 0) {
@@ -79,14 +64,10 @@ function MySQLConnector() {
 	  				}
 
 	  				console.log("Match inserted");
-	  				//connection.release();
 	  			});
 	  		} else {
 	  			console.log("Match already exists");
-	  			//connection.release();
 	  		}
-
-	  		//connection.release();
 		});
 
 		cb();	
