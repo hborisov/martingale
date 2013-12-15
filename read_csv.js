@@ -55,7 +55,6 @@ rd1.on('line', function(line) {
 			    counter.val += 1;
 			    cn.insertIfMatchNotExistsWithCallback(input, function(cnt) {
 			    	cnt.val -= 1;
-			    	//console.log(cnt.val);
 			    	if(cnt.val === 0) {
 			    		process.exit();
 			    	}
@@ -65,6 +64,3 @@ rd1.on('line', function(line) {
 		});
 	});
 });
-
-
-
