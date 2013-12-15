@@ -16,10 +16,17 @@ input.FT_HOME_GOALS = '2';
 input.FT_AWAY_GOALS = '3';
 input.FT_RESULT = 'A';
 
-cn.insertIfMatchNotExists2(input, function(err, rows, fields) {
+/*cn.insertIfMatchNotExists2(input, function(err, rows, fields) {
 	if (err) {
 			throw err;
 		}
 
 	console.log('ASs'); 
-});
+});*/
+
+/*cn.selectAllMatches(function(rows) {
+	console.log('Callback' + rows.length);
+});*/
+
+var mgs = require('./martin_gale_strategy');
+var mg = new mgs();

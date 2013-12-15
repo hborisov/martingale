@@ -3,6 +3,8 @@ var async = require('async');
 
 var SELECT_MATCH_STATEMENT = "SELECT * FROM CSVData WHERE DIVISION = %1 AND MATCH_DATE = str_to_date(%2, '%d/%m/%Y') AND HOME_TEAM = %3 AND AWAY_TEAM = %4";
 var INSERT_MATCH_STATEMENT = "INSERT INTO CSVData (DIVISION, MATCH_DATE, HOME_TEAM, AWAY_TEAM, FT_HOME_GOALS, FT_AWAY_GOALS, FT_RESULT) VALUES (%1, str_to_date(%2, '%d/%m/%Y'), %3, %4, %5, %6, %7)";
+var SELECT_ALL_MATCHES = "SELECT * FROM CSVData";
+
 var intermediateResult;
 var connection;
 
@@ -74,7 +76,6 @@ MysqlConnector.prototype.insertIfMatchNotExistsWithCallback = function(matchData
 			insertMatchQuery.setParameter('5', matchData.FT_HOME_GOALS);
 			insertMatchQuery.setParameter('6', matchData.FT_AWAY_GOALS);
 			insertMatchQuery.setParameter('7', matchData.FT_RESULT);
-			console.log(insertMatchQuery.getQuery());
 
 			connection.query(insertMatchQuery.getQuery(), function(err, rows, fields) {
 				cb(cnt);
@@ -82,6 +83,17 @@ MysqlConnector.prototype.insertIfMatchNotExistsWithCallback = function(matchData
 		} else {
 			cb(cnt);
 		}
+	});
+};
+
+MysqlConnector.prototype.selectAllMatches = function(cb) {
+	var selectAllMatchesQuery = require('./query')(SELECT_ALL_MATCHES);
+	connection.query(selectAllMatchesQuery.getQuery(), function(err, rows, fields) {
+		if(err) {
+			throw err;
+		}
+
+		cb(rows);
 	});
 };
 
