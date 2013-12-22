@@ -27,12 +27,17 @@ MartinGaleStrategy.prototype.load = function (cb) {
 };
 
 MartinGaleStrategy.prototype.getMatchesWithoutDraw = function() {
-	var teamsMatches = [];
-	
-
-	for (var j=0; j<200; j++) {
-		if (teamsMatches[j].TEAM === "Man United") {
-			console.log("> " + teamsMatches[j].MATCH_DATE + "    " + teamsMatches[j].TEAM + "   " + teamsMatches[j].FT_RESULT);	
+	var series = 0;
+	for (var key in this.teams) {
+		for(var i=0; i<this.teams[key].length; i++) {
+			if (this.teams[key][i].FT_RESULT === "draw") {
+				break;
+			}
+			series += 1;
+		}
+		if (series >= 3) {
+			console.log(key + " : " + series);
+			series = 0;
 		}
 	}
 };
@@ -71,17 +76,12 @@ MartinGaleStrategy.prototype.separateTeamResults = function() {
 };
 
 MartinGaleStrategy.prototype.separateTeams = function() {
-	
 	for (var i=0; i<this.teamResults.length; i++) {
 		if (this.teams[this.teamResults[i].TEAM] === undefined) {
 			this.teams[this.teamResults[i].TEAM] = [];
 		} 
 		
 		this.teams[this.teamResults[i].TEAM].push(this.teamResults[i]);
-	}
-
-	for (var j=0; j<this.teams["Man United"].length; j++) {
-		console.log(this.teams["Man United"][j].TEAM + ":  " + this.teams["Man United"][j].MATCH_DATE + "  " + this.teams["Man United"][j].FT_RESULT);
 	}
 }
 

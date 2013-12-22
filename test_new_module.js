@@ -24,4 +24,5 @@ mg.load(function() {
 //mg.getMatchesWithoutDraw();
 mg.separateTeamResults();
 mg.separateTeams();
+mg.getMatchesWithoutDraw();
 });
