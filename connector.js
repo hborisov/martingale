@@ -3,7 +3,7 @@ var async = require('async');
 
 var SELECT_MATCH_STATEMENT = "SELECT * FROM CSVData WHERE DIVISION = %1 AND MATCH_DATE = str_to_date(%2, '%d/%m/%Y') AND HOME_TEAM = %3 AND AWAY_TEAM = %4";
 var INSERT_MATCH_STATEMENT = "INSERT INTO CSVData (DIVISION, MATCH_DATE, HOME_TEAM, AWAY_TEAM, FT_HOME_GOALS, FT_AWAY_GOALS, FT_RESULT) VALUES (%1, str_to_date(%2, '%d/%m/%Y'), %3, %4, %5, %6, %7)";
-var SELECT_ALL_MATCHES = "SELECT * FROM CSVData";
+var SELECT_ALL_MATCHES = "SELECT * FROM CSVData ORDER BY MATCH_DATE DESC";
 
 function MysqlConnector(options) {
 	this.connection = mysql.createConnection(options);

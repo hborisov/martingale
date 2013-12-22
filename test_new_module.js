@@ -19,5 +19,9 @@ input.FT_RESULT = 'A';
 
 var mgs = require('./martin_gale_strategy');
 var mg = new mgs();
-setInterval(function() { mg.len();}, 1000);
-mg.len();
+
+mg.load(function() {
+//mg.getMatchesWithoutDraw();
+mg.separateTeamResults();
+mg.separateTeams();
+});
