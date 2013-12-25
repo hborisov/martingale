@@ -88,8 +88,7 @@ function Odds(input) {
 Odds.prototype.print = function() {
 	for (var i=0; i<this.odds.length; i++) {
 		console.log('--------------');
-		console.log(odds[i].name + '   ' + odds[i].odd1 + '   ' + odds[i].oddX + '   ' + odds[i].odd2 + '   ' + odds[i].date);
-		console.log('--------------');
+		console.log(this.odds[i].name + '   ' + this.odds[i].odd1 + '   ' + this.odds[i].oddX + '   ' + this.odds[i].odd2 + '   ' + this.odds[i].date);
 	}
 };
 
