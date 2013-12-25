@@ -1,4 +1,5 @@
 fs = require('fs');
+
 var data = fs.readFileSync('../test_data/FlashData.asp.txt', 'utf8');
 
 var dataParts = data.split('|');
@@ -96,28 +97,6 @@ for (var k=0; k<pages.length; k++) {
 
 }
 console.log(odds);
-/*for (var i=0; i<dataParts.length; i++) {
-	var elements = dataParts[i].split(';');
-	var preambule = {};
-	if (startsWith(dataParts[i], "CO;")) {
-		preambule.type = 'PREAMBULE';
-	} else if (startsWith(dataParts[i], "PA;")) {
-		preambule.type = 'MATCH_DATA';
-	}
-	for (var p=0; p<elements.length; p++) {
-		//console.log(elements[p]);
-		
-		if (contains(elements[p], '=')) {
-			var keyValue = elements[p].split('=');
-			preambule[keyValue[0]] = keyValue[1];
-		} else {
-			//only key
-			preambule[elements[p]] = '';
-		}
-	}
-	console.log(preambule);
-}*/
-
 
 function startsWith(str, starts) {
 	var counter = 0;
