@@ -86,7 +86,11 @@ function Odds(input) {
 }
 
 Odds.prototype.print = function() {
-	console.log(this.odds);
+	for (var i=0; i<this.odds.length; i++) {
+		console.log('--------------');
+		console.log(odds[i].name + '   ' + odds[i].odd1 + '   ' + odds[i].oddX + '   ' + odds[i].odd2 + '   ' + odds[i].date);
+		console.log('--------------');
+	}
 };
 
 Odds.startsWith = function(str, starts) {
