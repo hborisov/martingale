@@ -1,5 +1,7 @@
 var http = require('http');
 var zlib = require('zlib');
+var Odds = require('./read_odds');
+var async = require('async');
 
 var cookies = {};
 cookies['cp2'] = 'cp2=0';
@@ -110,6 +112,8 @@ var req = http.request(options, function(res) {
 				  	var buffer = Buffer.concat(gzipped_data);
 				  	console.log('response sent len: ' + buffer.length);
 				  	console.log(buffer.toString());
+				  	var readOdds = new Odds(buffer.toString());
+					readOdds.print();
 				  	/*zlib.gunzip(buffer, function(err, decoded) {
 				  		if(err) {
 				  			console.log(err);
