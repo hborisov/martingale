@@ -51,7 +51,7 @@ MartinGaleStrategy.prototype.separateTeamResults = function() {
 		currentMatch.MATCH_DATE = this.matches[i].MATCH_DATE;
 		currentMatch.TEAM = this.matches[i].AWAY_TEAM;
 		if (this.matches[i].FT_RESULT === "A") {
-			currentMatch.FT_RESULT = "win";	
+			currentMatch.FT_RESULT = "win";
 		} else if (this.matches[i].FT_RESULT === "H") {
 			currentMatch.FT_RESULT = "lose";
 		} else {
@@ -65,7 +65,7 @@ MartinGaleStrategy.prototype.separateTeamResults = function() {
 		currentMatch.MATCH_DATE = this.matches[i].MATCH_DATE;
 		currentMatch.TEAM = this.matches[i].HOME_TEAM;
 		if (this.matches[i].FT_RESULT === "H") {
-			currentMatch.FT_RESULT = "win";	
+			currentMatch.FT_RESULT = "win";
 		} else if (this.matches[i].FT_RESULT === "A") {
 			currentMatch.FT_RESULT = "lose";
 		} else {
@@ -79,11 +79,11 @@ MartinGaleStrategy.prototype.separateTeams = function() {
 	for (var i=0; i<this.teamResults.length; i++) {
 		if (this.teams[this.teamResults[i].TEAM] === undefined) {
 			this.teams[this.teamResults[i].TEAM] = [];
-		} 
+		}
 		
 		this.teams[this.teamResults[i].TEAM].push(this.teamResults[i]);
 	}
-}
+};
 
 MartinGaleStrategy.prototype.len = function() {
 
