@@ -2,6 +2,7 @@ var fs = require('fs');
 var readline = require('readline');
 var http = require('http');
 var Connector = require('./connector');
+var moment = require('moment');
 
 var cn = new Connector({
 	host: 'localhost',
@@ -19,47 +20,67 @@ var rd1 = readline.createInterface({
     terminal: false
 });
 
+function convertTeam(team) {
+	if (team === 'HULL') {
+		return 'HULL CITY';
+	} else if (team === 'STOKE') {
+		return 'STOKE CITY';
+	} else if (team === 'MAN UNITED') {
+		return 'MANCHESTER UTD';
+	} else if (team === 'MAN CITY') {
+		return 'MANCHESTER CITY';
+	}
+	
+	return team;
+}
+
 rd1.on('line', function(line) {
     var request = http.get(line, function(response) {
 
 		var rd = readline.createInterface({
-		    input: response,
-		    output: process.stdout,
-		    terminal: false
+			input: response,
+			output: process.stdout,
+			terminal: false
 		});
 
 		console.log("DIVISION   |   DATA   |   HOME TEAM   |   AWAY TEAM   |   HT GOALS   |   AT AWAY   |   FT RESULT");
 		rd.on('line', function(line) {
 			var csvValues = line.split(",");
 
-		    console.log(csvValues[0] + '   ' + 
-		    			csvValues[1] + '   ' +
-		    			csvValues[2] + '   ' +
-		    			csvValues[3] + '   ' +
-		    			csvValues[4] + '   ' +
-		    			csvValues[5] + '   ' +
-		    			csvValues[6]);
+			console.log(csvValues[0] + '   ' + 
+						moment(csvValues[1], 'DD/MM/YY').format("YYYY-MM-DD") + '   ' +
+						csvValues[2] + '   ' +
+						csvValues[3] + '   ' +
+						csvValues[4] + '   ' +
+						csvValues[5] + '   ' +
+						csvValues[6]);
 
 		//TODO: check for heading line and for empty columns which denotes a match that hasn't finished.
 			if(csvValues[0] !== 'Div' && csvValues[0] !== '') {
 
-			    var input = {};
+				var input = {};
 				input.DIVISION = csvValues[0];
-				input.MATCH_DATE = csvValues[1];
-				input.HOME_TEAM = csvValues[2];
-				input.AWAY_TEAM = csvValues[3];
+
+				if (csvValues[1].length === 8) {
+					input.MATCH_DATE = moment(csvValues[1], 'DD/MM/YY').format("YYYY-MM-DD");
+				} else if (csvValues[1].length === 10) {
+					input.MATCH_DATE = moment(csvValues[1], 'DD/MM/YYYY').format("YYYY-MM-DD");
+				}
+				
+				input.HOME_TEAM = convertTeam(csvValues[2].toUpperCase());
+				input.AWAY_TEAM = convertTeam(csvValues[3].toUpperCase());
 				input.FT_HOME_GOALS = csvValues[4];
 				input.FT_AWAY_GOALS = csvValues[5];
 				input.FT_RESULT = csvValues[6];
-			    
-			    counter.val += 1;
-			    cn.insertIfMatchNotExistsWithCallback(input, function(cnt) {
-			    	cnt.val -= 1;
-			    	if(cnt.val === 0) {
-			    		process.exit();
-			    	}
+				input.STATUS = 'Fin';
 
-			    }, counter);
+				counter.val += 1;
+				cn.insertUpdate(input, function(cnt) {
+					cnt.val -= 1;
+					if(cnt.val === 0) {
+						process.exit();
+					}
+				}, counter);
 			}
 		});
 	});
