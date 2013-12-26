@@ -98,12 +98,13 @@ var req = http.request(options, function(res) {
 				input.STATUS = fixtures[i].fixtures[j][1];
 
 				counter.val += 1;
-			    cn.insertIfMatchNotExistsWithCallback(input, function(cnt) {
+				cn.insertIfMatchNotExistsWithCallback(input, function(cnt) {
 					cnt.val -= 1;
 					if(cnt.val === 0) {
 						process.exit();
 					}
-			    }, counter);
+				}, counter);
+
 			}
 		}
 
