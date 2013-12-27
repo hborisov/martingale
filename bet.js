@@ -10,6 +10,14 @@ function Bet() {
 	});
 }
 
+Bet.prototype.readBets = function(cb) {
+	this.cn.selectAllBets(cb);
+};
+
+Bet.prototype.readPendingBets = function(cb) {
+	this.cn.selectAllPendingBets(cb);
+};
+
 Bet.prototype.placeBet = function(fixtureId, amount, odd, team, bet, cb) {
 	this.cn.insertBet(fixtureId, amount, odd, team, bet, moment().format('YYYY-MM-DD'), cb);
 };

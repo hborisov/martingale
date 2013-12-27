@@ -2,11 +2,14 @@ var mysql = require('mysql');
 var async = require('async');
 
 var SELECT_MATCH_STATEMENT = "SELECT * FROM CSVData WHERE DIVISION = %1 AND MATCH_DATE = %2 AND HOME_TEAM = %3 AND AWAY_TEAM = %4";
+var SELECT_MATCH_BYID_STATEMENT = "SELECT * FROM CSVData WHERE ID = %1";
 var INSERT_MATCH_STATEMENT = "INSERT INTO CSVData (DIVISION, MATCH_DATE, HOME_TEAM, AWAY_TEAM, FT_HOME_GOALS, FT_AWAY_GOALS, FT_RESULT, STATUS) VALUES (%1, %2, %3, %4, %5, %6, %7, %8)";
 var UPDATE_MATCH_STATEMENT = "UPDATE CSVData SET FT_HOME_GOALS = %1, FT_AWAY_GOALS = %2, FT_RESULT = %3, STATUS = %4 WHERE DIVISION = %5 AND MATCH_DATE = %6 AND HOME_TEAM = %7 AND AWAY_TEAM = %8";
 var SELECT_ALL_MATCHES = "SELECT * FROM CSVData WHERE MATCH_DATE > '2013-08-01' ORDER BY MATCH_DATE DESC";
 var INSERT_BET_STATEMENT = "INSERT INTO bet (FIXTURE_ID, AMOUNT, ODD, TEAM, BET, DATE, RESULT) VALUES ( %1, %2, %3, %4, %5, %6, %7)";
 var UPDATE_BET_STATEMENT = "UPDATE bet SET RESULT = %1 WHERE ID = %2";
+var SELECT_ALL_BETS = "SELECT * FROM BET";
+var SELECT_ALL_PENDING_BETS = "SELECT * FROM BET WHERE RESULT = 'PENDING'";
 
 
 function MysqlConnector(options) {
@@ -147,6 +150,19 @@ MysqlConnector.prototype.selectAllMatches = function(cb) {
 	});
 };
 
+MysqlConnector.prototype.selectMatchById = function(matchId, cb) {
+	var selectMatchByIdQuery = require('./query')(SELECT_MATCH_BYID_STATEMENT);
+		selectMatchByIdQuery.setParameter('1', matchId);
+
+	this.connection.query(selectMatchByIdQuery.getQuery(), function(err, rows, fields) {
+		if(err) {
+			throw err;
+		}
+
+		cb(rows);
+	});
+};
+
 MysqlConnector.prototype.insertBet = function(fixtureId, amount, odd, team, bet, date, cb) {
 	var insertBetQuery = require('./query')(INSERT_BET_STATEMENT);
 		insertBetQuery.setParameter('1', fixtureId);
@@ -178,6 +194,30 @@ MysqlConnector.prototype.updateBet = function(betId, result, cb) {
 
 			cb(rows.changedRows);
 		});
+};
+
+MysqlConnector.prototype.selectAllBets = function(cb) {
+	var selectBetsQuery = require('./query')(SELECT_ALL_BETS);
+		
+	this.connection.query(selectBetsQuery.getQuery(), function (err, rows, fields) {
+		if (err) {
+			throw err;
+		}
+
+		cb(rows);
+	});
+};
+
+MysqlConnector.prototype.selectAllPendingBets = function(cb) {
+	var selectBetsQuery = require('./query')(SELECT_ALL_PENDING_BETS);
+		
+	this.connection.query(selectBetsQuery.getQuery(), function (err, rows, fields) {
+		if (err) {
+			throw err;
+		}
+
+		cb(rows);
+	});
 };
 
 module.exports = MysqlConnector;
