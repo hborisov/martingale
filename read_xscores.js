@@ -76,7 +76,7 @@ var req = http.request(options, function(res) {
 				o.fixtures.push(matchData[k]);
 			}
 		}
-
+		fixtures.push(o);
 
 		var counter = {};
 		counter.val = 0;

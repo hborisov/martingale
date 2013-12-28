@@ -24,7 +24,7 @@ var cn = new Connector({
 var options = {
   hostname: 'www.xscores.com',
   port: 80,
-  path: 'http://www.xscores.com/soccer/Results.jsp?sport=1&countryName=ENGLAND&leagueName=PREMIER+LEAGUE&sortBy=P&seasonName=2013%2F2014&month=1&result=3',
+  path: '/soccer/Results.jsp?sport=1&countryName=ENGLAND&leagueName=PREMIER+LEAGUE&sortBy=P&seasonName=2012%2F2013&month=9&result=3',
   method: 'GET'
 };
 var fixtures = [];
@@ -76,6 +76,7 @@ var req = http.request(options, function(res) {
 				o.fixtures.push(matchData[k]);
 			}
 		}
+		fixtures.push(o);
 
 		var counter = {};
 		counter.val = 0;
@@ -90,7 +91,7 @@ var req = http.request(options, function(res) {
 				input.MATCH_DATE = moment(fixtures[i].date, 'YYYY-MM-DD').format("YYYY-MM-DD");
 				input.HOME_TEAM = fixtures[i].fixtures[j][4];
 				input.AWAY_TEAM = fixtures[i].fixtures[j][7];
-				var goals = fixtures[i].fixtures[j][10].split('-');
+				var goals = fixtures[i].fixtures[j][11].split('-');
 				if (goals.length === 2 && goals[0].length > 0 && goals[1].length > 0) {
 					input.FT_HOME_GOALS = goals[0];
 					input.FT_AWAY_GOALS = goals[1];

@@ -29,11 +29,15 @@ MartinGaleStrategy.prototype.load = function (cb) {
 MartinGaleStrategy.prototype.getMatchesWithoutDraw = function() {
 	var series = 0;
 	for (var key in this.teams) {
+		series = 0;
 		for(var i=0; i<this.teams[key].length; i++) {
 			if (this.teams[key][i].FT_RESULT === "draw") {
 				break;
 			}
-			series += 1;
+			//console.log(this.teams[key][i].STATUS);
+			if (this.teams[key][i].STATUS === "Fin") {
+				series += 1;
+			}
 		}
 		if (series >= 3) {
 			console.log(key + " : " + series);
@@ -50,28 +54,42 @@ MartinGaleStrategy.prototype.separateTeamResults = function() {
 		currentMatch.DIVISION = this.matches[i].DIVISION;
 		currentMatch.MATCH_DATE = this.matches[i].MATCH_DATE;
 		currentMatch.TEAM = this.matches[i].AWAY_TEAM;
+		currentMatch.STATUS = this.matches[i].STATUS;
 		if (this.matches[i].FT_RESULT === "A") {
 			currentMatch.FT_RESULT = "win";
+			//this.teamResults.push(currentMatch);
 		} else if (this.matches[i].FT_RESULT === "H") {
 			currentMatch.FT_RESULT = "lose";
-		} else {
+			//this.teamResults.push(currentMatch);
+		} else if (this.matches[i].FT_RESULT === "D") {
 			currentMatch.FT_RESULT = "draw";
+			//this.teamResults.push(currentMatch);
 		}
-		this.teamResults.push(currentMatch);
-
+		
+		if (currentMatch.STATUS === 'Fin') {
+			this.teamResults.push(currentMatch);
+		}
 
 		currentMatch = {};
 		currentMatch.DIVISION = this.matches[i].DIVISION;
 		currentMatch.MATCH_DATE = this.matches[i].MATCH_DATE;
 		currentMatch.TEAM = this.matches[i].HOME_TEAM;
+		currentMatch.STATUS = this.matches[i].STATUS;
 		if (this.matches[i].FT_RESULT === "H") {
 			currentMatch.FT_RESULT = "win";
+			//this.teamResults.push(currentMatch);
 		} else if (this.matches[i].FT_RESULT === "A") {
 			currentMatch.FT_RESULT = "lose";
-		} else {
+			//this.teamResults.push(currentMatch);
+		} else if (this.matches[i].FT_RESULT === "D") {
 			currentMatch.FT_RESULT = "draw";
+			//this.teamResults.push(currentMatch);
 		}
-		this.teamResults.push(currentMatch);
+
+		if (currentMatch.STATUS === 'Fin') {
+			this.teamResults.push(currentMatch);	
+		}
+		
 	}
 };
 
