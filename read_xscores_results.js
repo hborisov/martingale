@@ -24,7 +24,7 @@ var cn = new Connector({
 var options = {
   hostname: 'www.xscores.com',
   port: 80,
-  path: '/soccer/Results.jsp?sport=1&countryName=ENGLAND&leagueName=PREMIER+LEAGUE&sortBy=P&seasonName=2012%2F2013&month=9&result=3',
+  path: '/soccer/Results.jsp?sport=1&countryName=ENGLAND&leagueName=SERIE+B&sortBy=P&seasonName=2012%2F2013&month=12&result=3',
   method: 'GET'
 };
 var fixtures = [];

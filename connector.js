@@ -1,8 +1,10 @@
 var mysql = require('mysql');
-var async = require('async');
+//var async = require('async');
+var sync = require('sync');
 
 var SELECT_MATCH_STATEMENT = "SELECT * FROM CSVData WHERE DIVISION = %1 AND MATCH_DATE = %2 AND HOME_TEAM = %3 AND AWAY_TEAM = %4";
 var SELECT_MATCH_BYID_STATEMENT = "SELECT * FROM CSVData WHERE ID = %1";
+var SELECT_TEAM_MATCHES_AFTER_DATE_STATEMENT  = "SELECT * FROM CSVData WHERE MATCH_DATE > %1 AND (HOME_TEAM = %2 OR AWAY_TEAM = %2) ORDER BY MATCH_DATE ASC";
 var INSERT_MATCH_STATEMENT = "INSERT INTO CSVData (DIVISION, MATCH_DATE, HOME_TEAM, AWAY_TEAM, FT_HOME_GOALS, FT_AWAY_GOALS, FT_RESULT, STATUS) VALUES (%1, %2, %3, %4, %5, %6, %7, %8)";
 var UPDATE_MATCH_STATEMENT = "UPDATE CSVData SET FT_HOME_GOALS = %1, FT_AWAY_GOALS = %2, FT_RESULT = %3, STATUS = %4 WHERE DIVISION = %5 AND MATCH_DATE = %6 AND HOME_TEAM = %7 AND AWAY_TEAM = %8";
 var SELECT_ALL_MATCHES = "SELECT * FROM CSVData WHERE MATCH_DATE > '2013-08-01' ORDER BY MATCH_DATE DESC";
@@ -161,6 +163,46 @@ MysqlConnector.prototype.selectMatchById = function(matchId, cb) {
 
 		cb(rows);
 	});
+};
+
+MysqlConnector.prototype.selectNextTeamMatch = function(team, date, cb) {
+	var selectTeamMatchesAfterDateQuery = require('./query')(SELECT_TEAM_MATCHES_AFTER_DATE_STATEMENT);
+	console.log(date);
+		selectTeamMatchesAfterDateQuery.setParameter('1', date);
+		selectTeamMatchesAfterDateQuery.setParameter('2', team);
+
+	this.connection.query(selectTeamMatchesAfterDateQuery.getQuery(), function(err, rows, fields) {
+		if(err) {
+			throw err;
+		}
+
+		cb(rows[0]);
+	});
+};
+
+MysqlConnector.prototype.selectNextTeamMatchSync = function(team, date) {
+	var selectTeamMatchesAfterDateQuery = require('./query')(SELECT_TEAM_MATCHES_AFTER_DATE_STATEMENT);
+	console.log(date);
+		selectTeamMatchesAfterDateQuery.setParameter('1', date);
+		selectTeamMatchesAfterDateQuery.setParameter('2', team);
+	
+	//var result;
+	var self = this;
+	sync(function(){
+		console.log(selectTeamMatchesAfterDateQuery.getQuery());
+		var result = self.connection.query.sync(self, selectTeamMatchesAfterDateQuery.getQuery());
+		console.log(result);
+	});
+	
+	//console.log(result);
+	//return result;
+	/*this.connection.query(selectTeamMatchesAfterDateQuery.getQuery(), function(err, rows, fields) {
+		if(err) {
+			throw err;
+		}
+
+		cb(rows[0]);
+	});*/
 };
 
 MysqlConnector.prototype.insertBet = function(fixtureId, amount, odd, team, bet, date, cb) {

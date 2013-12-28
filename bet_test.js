@@ -1,7 +1,7 @@
 var Bet = require('./bet');
 var b = new Bet();
 
-b.placeBet('10167', '50', '3.45', 'ASTON VILLA', 'D', function() {
+b.placeBet('56', '4', '3.25', 'ASTON VILLA', 'D', function() {
 	console.log('bet placed');
 	process.exit();
 });

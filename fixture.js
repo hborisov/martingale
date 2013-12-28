@@ -13,4 +13,8 @@ Fixture.prototype.readFixture = function(fixtureId, cb) {
 	this.cn.selectMatchById(fixtureId, cb);
 };
 
+Fixture.prototype.readNextFixture = function(team, date, cb) {
+	this.cn.selectNextTeamMatch(team, date, cb);
+};
+
 module.exports = Fixture;
