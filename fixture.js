@@ -17,4 +17,8 @@ Fixture.prototype.readNextFixture = function(team, date, cb) {
 	this.cn.selectNextTeamMatch(team, date, cb);
 };
 
+Fixture.prototype.addUpdateFixture = function(input, counter, cb) {
+	this.cn.insertUpdate(input, counter, cb);
+};
+
 module.exports = Fixture;

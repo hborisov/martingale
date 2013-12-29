@@ -4,9 +4,16 @@ var sequence = new s();
 
 sequence.printCurrentStep();
 
-sequence.start('28', 'EVERTON');
+sequence.start('318', 'SPARTAK');
 
-sequence.printCurrentStep();
-sequence.next();
-sequence.printCurrentStep();
-//sequence.printCurrentStep();
+sequence.printSteps();
+sequence.next(function() {
+	sequence.printSteps();
+	sequence.next(function() {
+		sequence.printSteps();
+		sequence.next(function() {
+			sequence.printSteps();
+			process.exit();
+		});
+	});
+});

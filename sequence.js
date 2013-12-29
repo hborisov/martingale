@@ -28,24 +28,31 @@ Sequence.prototype.start = function(fixtureId, team) {
 	}
 };
 
-Sequence.prototype.next = function() {
+Sequence.prototype.next = function(cb) {
 	//check result of current step's fixture
 	//if not draw start next step: add new fixture into step
 	var self = this;
 	var step = this.steps[this.currentStep];
 	this.fixturesApi.readFixture(step.fixtureId, function(rows) {
-		if (rows.length === 1) {
+		if (rows.length === 1 && rows[0].STATUS === 'Fin') {
 			if (rows[0].FT_RESULT === 'D') {
-				Sequence.prototype.end();
+				Sequence.finishCurrentStep.call(self);
+				Sequence.prototype.finish.call(self, cb);
 			} else {
 				self.fixturesApi.readNextFixture(self.team, moment(rows[0].MATCH_DATE).format('YYYY-MM-DD'), function(fixture) {
-					console.log(fixture);
-					Sequence.addStep.call(self,fixture.ID);
+					Sequence.finishCurrentStep.call(self);
+					if (fixture !== undefined) {
+						Sequence.addStep.call(self, fixture.ID.toString());
+					}
+					
+					cb();
 				});
 			}
 		} else {
-			console.log('Fixture cannot be found');
+			console.log('Fixture cannot be found or is not finished');
+			cb();
 		}
+
 	});
 
 
@@ -58,12 +65,19 @@ Sequence.addStep = function(fixtureId) {
 	step.number = this.currentStep + 1;
 	this.steps.push(step);
 	this.status = 'RUNNING';
+	this.currentStep++;
 
 	//save to db
 };
 
-Sequence.prototype.end = function( ) {
-	console.log('end');
+Sequence.finishCurrentStep = function() {
+
+	this.steps[this.currentStep].status = 'FINISHED';
+};
+
+Sequence.prototype.finish = function(cb) {
+	Sequence.finishCurrentStep.call(this);
+	cb();
 };
 
 Sequence.prototype.printCurrentStep = function( ) {
@@ -72,7 +86,16 @@ Sequence.prototype.printCurrentStep = function( ) {
 	} else {
 		console.log(this.steps[this.currentStep]);
 	}
-	
+};
+
+Sequence.prototype.printSteps = function( ) {
+	if (this.status === 'UNDEFINED') {
+		console.log('Sequence not started');
+	} else {
+		for (var i=0; i<this.steps.length; i++) {
+			console.log(this.steps[i]);
+		}
+	}
 };
 
 module.exports = Sequence;

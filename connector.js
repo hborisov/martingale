@@ -1,6 +1,4 @@
 var mysql = require('mysql');
-//var async = require('async');
-var sync = require('sync');
 
 var SELECT_MATCH_STATEMENT = "SELECT * FROM CSVData WHERE DIVISION = %1 AND MATCH_DATE = %2 AND HOME_TEAM = %3 AND AWAY_TEAM = %4";
 var SELECT_MATCH_BYID_STATEMENT = "SELECT * FROM CSVData WHERE ID = %1";
@@ -86,7 +84,7 @@ MysqlConnector.prototype.insertIfMatchNotExistsWithCallback = function(matchData
 	});
 };
 
-MysqlConnector.prototype.insertUpdate = function(matchData, cb, cnt) {
+MysqlConnector.prototype.insertUpdate = function(matchData, cnt, cb) {
 	var self = this;
 
 	var checkMatchQuery = require('./query')(SELECT_MATCH_STATEMENT);
@@ -167,7 +165,6 @@ MysqlConnector.prototype.selectMatchById = function(matchId, cb) {
 
 MysqlConnector.prototype.selectNextTeamMatch = function(team, date, cb) {
 	var selectTeamMatchesAfterDateQuery = require('./query')(SELECT_TEAM_MATCHES_AFTER_DATE_STATEMENT);
-	console.log(date);
 		selectTeamMatchesAfterDateQuery.setParameter('1', date);
 		selectTeamMatchesAfterDateQuery.setParameter('2', team);
 
@@ -178,31 +175,6 @@ MysqlConnector.prototype.selectNextTeamMatch = function(team, date, cb) {
 
 		cb(rows[0]);
 	});
-};
-
-MysqlConnector.prototype.selectNextTeamMatchSync = function(team, date) {
-	var selectTeamMatchesAfterDateQuery = require('./query')(SELECT_TEAM_MATCHES_AFTER_DATE_STATEMENT);
-	console.log(date);
-		selectTeamMatchesAfterDateQuery.setParameter('1', date);
-		selectTeamMatchesAfterDateQuery.setParameter('2', team);
-	
-	//var result;
-	var self = this;
-	sync(function(){
-		console.log(selectTeamMatchesAfterDateQuery.getQuery());
-		var result = self.connection.query.sync(self, selectTeamMatchesAfterDateQuery.getQuery());
-		console.log(result);
-	});
-	
-	//console.log(result);
-	//return result;
-	/*this.connection.query(selectTeamMatchesAfterDateQuery.getQuery(), function(err, rows, fields) {
-		if(err) {
-			throw err;
-		}
-
-		cb(rows[0]);
-	});*/
 };
 
 MysqlConnector.prototype.insertBet = function(fixtureId, amount, odd, team, bet, date, cb) {

@@ -2,6 +2,9 @@ var http = require('http');
 var cheerio = require('cheerio');
 var Connector = require('./connector');
 var moment = require('moment');
+var F = require('./fixture');
+
+var fixturesApi = new F();
 //http://www.xscores.com/soccer/Results.jsp?sport=1&countryName=ENGLAND&leagueCup=L&leagueName=PREMIER+LEAGUE&seasonName=2012%2F2013&sortBy=P&round=100422&result=6
 
 function printFixtures(mat) {
@@ -111,16 +114,13 @@ var req = http.request(options, function(res) {
 					input.STATUS = 'Sched';	
 				}
 				
-				
-				//console.log(input);
-				
 				counter.val += 1;
-				cn.insertUpdate(input, function(cnt) {
+				fixturesApi.addUpdateFixture(input, counter, function(cnt) {
 					cnt.val -= 1;
 					if(cnt.val === 0) {
 						process.exit();
 					}
-				}, counter);
+				});
 
 			}
 		}
