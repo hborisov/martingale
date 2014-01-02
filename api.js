@@ -63,4 +63,7 @@ app.post('/api/bet', function(req, res) {
 	});
 });
 
-app.listen(process.env.PORT || 4730);
+app.configure(function() {
+	app.use(express.static(__dirname + '\\webapp'));
+});
+app.listen(process.env.PORT || 8080);

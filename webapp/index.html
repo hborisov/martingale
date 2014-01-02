@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)http://getbootstrap.com/examples/starter-template/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="http://getbootstrap.com/docs-assets/ico/favicon.png">
+
+    <title>Martin Gale</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/starter-template.css" rel="stylesheet">
+    <link rel='stylesheet' href='css/watable.css'/>
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body style="">
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="http://getbootstrap.com/examples/starter-template/#">MartinGale</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="http://getbootstrap.com/examples/starter-template/#">Home</a></li>
+            <li><a href="http://getbootstrap.com/examples/starter-template/#about">About</a></li>
+            <li><a href="http://getbootstrap.com/examples/starter-template/#contact">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="starter-template">
+        <h1>Bootstrap starter template</h1>
+        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
+      </div>
+
+      <div id="fixture-table" style="width:300px"></div>
+
+    </div><!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.watable.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+      $(document).ready( function() {
+        var waTable = $('#fixture-table').WATable({
+             pageSize: 15,                //Sets the initial pagesize
+            filter: true,               //Show filter fields
+            columnPicker: true,         //Show the columnPicker button
+            pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+            types: {                    //Following are some specific properties related to the data types
+                string: {
+                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
+                },
+                number: {
+                    decimals: 1   //Sets decimal precision for float types
+                },
+                bool: {
+                    //filterTooltip: false
+                },
+                date: {
+                  utc: true,            //Show time as universal time, ie without timezones.
+                  //format: 'yy/dd/MM',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
+                }
+            },
+            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+                console.log('row clicked');   //data.event holds the original jQuery event.
+                console.log(data);            //data.row holds the underlying row you supplied.
+                                              //data.column holds the underlying column you supplied.
+                                              //data.checked is true if row is checked.
+                                              //'this' keyword holds the clicked element.
+                if ( $(this).hasClass('userId') ) {
+                  data.event.preventDefault();
+                  alert('You clicked userId: ' + data.row.userId);
+                }
+            }
+        }).data('WATable');
+
+        /* 
+        "ID": 927,
+        "DIVISION": "ECH",
+        "MATCH_DATE": "2014-01-29T22:00:00.000Z",
+        "HOME_TEAM": "NOTTM FOREST",
+        "AWAY_TEAM": "WATFORD",
+        "FT_HOME_GOALS": -1,
+        "FT_AWAY_GOALS": -1,
+        "FT_RESULT": "x",
+        "STATUS": "Sched"
+        */
+        
+
+        
+        
+          var cols = {
+              id: {
+                index: 1,
+                type: "number",
+                unique: true
+              },
+              div: {
+                index: 2,
+                type: "string"
+              },
+              matchDate: {
+                index: 3,
+                type: "date"
+              },
+              homeTeam: {
+                index: 4,
+                type: "string"
+              },
+              awayTeam: {
+                index: 5,
+                type: "string"
+              },
+              ftHomeGoals: {
+                index: 6,
+                type: "number"
+              },
+              ftAwayGoals: {
+                index: 7,
+                type: "number"
+              },
+              ftResult: {
+                index: 8,
+                type: "string"
+              },
+              status: {
+                index: 9,
+                type: "string"
+              }
+            };
+          
+
+          var rows = [];
+          console.log('data');
+          $.get('api/fixture', function(data) {
+            for (var i=0; i<data.length; i++) {
+              var row = {};
+              row.id = data[i].ID;
+              row.div = data[i].DIVISION;
+              row.matchDate = data[i].MATCH_DATE;
+              row.homeTeam = data[i].HOME_TEAM;
+              row.awayTeam = data[i].AWAY_TEAM;
+              row.ftHomeGoals = data[i].FT_HOME_GOALS;
+              row.ftAwayGoals = data[i].FT_AWAY_GOALS;
+              row.ftResult = data[i].FT_RESULT;
+              row.status = data[i].STATUS;
+              rows.push(row);
+            }
+
+            var enddata = {
+              cols: cols,
+              rows: rows
+            };
+            
+            waTable.setData(enddata);
+          });
+
+    });
+    </script>
+    <!--<link rel='stylesheet' href="css/bootstrap.min.css"/>-->
+    
+
+</body></html>
