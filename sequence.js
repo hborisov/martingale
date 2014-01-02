@@ -28,11 +28,12 @@ function Sequence(fixtureId, team, id, currentStep, status, dateStarted) {
 	this.dateStarted = dateStarted || moment().format('YYYY-MM-DD');
 }
 
-function Step(sequenceId, fixtureId, status, number) {
+function Step(sequenceId, fixtureId, status, number, id) {
 	this.sequenceId = sequenceId;
 	this.fixtureId = fixtureId;
 	this.status = status || 'PENDING';
 	this.number = number = typeof number !== 'undefined' ? number : -1;
+	this.id = id || uuid.v1();
 }
 
 Sequence.prototype.start = function(fixtureId, team) {
@@ -61,28 +62,25 @@ SequenceApi.prototype.updateSequenceToDB = function(sequence, cb) {
 };
 
 SequenceApi.prototype.saveStepToDB = function(step, cb) {
-	connectionApi.insertStep(step.sequenceId, step.fixtureId, step.status, step.number.toString(), '-1', cb);
+	connectionApi.insertUpdateStep(step.id, step.sequenceId, step.fixtureId, step.status, step.number.toString(), '-1', cb);
 };
 
 SequenceApi.prototype.iterator = function(item, callback) {
 	var sequence = new Sequence(item.FIXTURE_ID, item.TEAM, item.APP_ID, item.CURRENT_STEP, item.STATUS, moment(item.DATE_STARTED).format('YYYY-MM-DD'));
 
 	if (sequence.status === 'RUNNING') {
-		
 		var self = this;
 		connectionApi.selectStepsForSequence(item.APP_ID, function(steps) {
 			for (var i=0; i<steps.length; i++) {
-				//sequenceId, fixtureId, status, number
-				var step = new Step(steps[i].SEQUENCE_ID, steps[i].FIXTURE_ID, steps[i].STATUS, steps[i].NUMBER);
+				var step = new Step(steps[i].SEQUENCE_ID, steps[i].FIXTURE_ID, steps[i].STATUS, steps[i].NUMBER, steps[i].APP_ID);
 				sequence.steps.push(step);
-				//console.log(sequence);
 			}
-
-			//console.log(sequence);
 			self.sequences.push(sequence);
 
 			callback(null);
 		});
+	} else {
+		callback(null);
 	}
 };
 
@@ -106,21 +104,48 @@ SequenceApi.prototype.advanceSequence = function(sequenceId) {
 	console.log(this.sequences);
 };
 
-Sequence.prototype.next = function(cb) {
+SequenceApi.prototype.next = function(sequenceId, cb) {
 	//check result of current step's fixture
 	//if not draw start next step: add new fixture into step
+	var sequence;
+	for (var i=0; i<this.sequences.length; i++) {
+		console.log(this.sequences[i].id);
+		if (this.sequences[i].id === sequenceId) {
+			sequence = this.sequences[i];
+			break;
+		}
+	}
+
 	var self = this;
-	var step = this.steps[this.currentStep];
-	fixturesApi.readFixture(step.fixtureId, function(rows) {
+	if (sequence === undefined) {
+		console.log('no sequences found');
+		return;
+	}
+
+	var step = sequence.steps[sequence.currentStep];
+
+	if (step === undefined) {
+		console.log('no steps found');
+		return;
+	}
+
+
+	fixturesApi.readFixture(step.fixtureId.toString(), function(rows) {
 		if (rows.length === 1 && rows[0].STATUS === 'Fin') {
 			if (rows[0].FT_RESULT === 'D') {
-				Sequence.finishCurrentStep.call(self);
-				Sequence.prototype.finish.call(self, cb);
+				sequence.finish();
 			} else {
-				fixturesApi.readNextFixture(self.team, moment(rows[0].MATCH_DATE).format('YYYY-MM-DD'), function(fixture) {
-					Sequence.finishCurrentStep.call(self);
+				fixturesApi.readNextFixture(sequence.team, moment(rows[0].MATCH_DATE).format('YYYY-MM-DD'), function(fixture) {
+					console.log(fixture.ID);
+					console.log(sequence.steps[sequence.currentStep]);
+					Sequence.finishCurrentStep.call(sequence);
 					if (fixture !== undefined) {
-						Sequence.addStep.call(self, fixture.ID.toString());
+						var step = new Step(sequence.id, fixture.ID.toString());
+						sequence.addStep(step);
+						connectionApi.updateSequence(sequence.id, sequence.status, sequence.currentStep.toString(), function() {
+							console.log('updating sequence');
+						});
+
 					}
 					
 					cb();
@@ -130,10 +155,7 @@ Sequence.prototype.next = function(cb) {
 			console.log('Fixture cannot be found or is not finished');
 			cb();
 		}
-
 	});
-
-
 };
 
 Sequence.prototype.addStep = function(step) {
@@ -147,13 +169,27 @@ Sequence.prototype.addStep = function(step) {
 };
 
 Sequence.finishCurrentStep = function() {
-
 	this.steps[this.currentStep].status = 'FINISHED';
+	
+	console.log('finishing step');
+	console.log(this);
+	console.log(this.steps[this.currentStep].id);
+	console.log(this.steps[this.currentStep].status);
+
+	connectionApi.updateStep(this.steps[this.currentStep].id, this.steps[this.currentStep].status, function() {
+		console.log('step finished');
+	});
 };
 
 Sequence.prototype.finish = function(cb) {
 	Sequence.finishCurrentStep.call(this);
-	cb();
+	console.log('finishing');
+	console.log(this);
+	
+	connectionApi.updateSequence(this.id, 'FINISHED', this.currentStep.toString(), function() {
+		console.log('finished sequence');
+	});
+	//cb();
 };
 
 Sequence.prototype.printCurrentStep = function( ) {
@@ -176,7 +212,7 @@ Sequence.prototype.printSteps = function( ) {
 };
 
 Sequence.prototype.printSequence = function() {
-	console.log(this.status + '  ' + this.team + '  ' + this.currentStep + '  ' + this.steps.length);
+	console.log(this.id + '   ' + this.status + '  ' + this.team + '  ' + this.currentStep + '  ' + this.steps.length);
 
 	for (var i=0; i<this.steps.length; i++) {
 		console.log('	' + this.steps[i].fixtureId + '   ' + this.steps[i].status + '   ' + this.steps[i].number);

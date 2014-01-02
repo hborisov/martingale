@@ -12,9 +12,11 @@ var SELECT_ALL_BETS = "SELECT * FROM BET";
 var SELECT_ALL_PENDING_BETS = "SELECT * FROM BET WHERE RESULT = 'PENDING'";
 var INSERT_SEQUENCE_STATEMENT = "INSERT INTO sequence (APP_ID, FIXTURE_ID, STATUS, CURRENT_STEP, TEAM, DATE_STARTED) VALUES (%1, %2, %3, %4, %5, %6)";
 var UPDATE_SEQUENCE_STATEMENT = "UPDATE sequence SET STATUS = %1, CURRENT_STEP = %2 WHERE APP_ID = %3";
-var INSERT_STEP_STATEMENT = "INSERT INTO step (SEQUENCE_ID, FIXTURE_ID, STATUS, NUMBER, BET_ID) VALUES (%1, %2, %3, %4, %5)";
+var INSERT_STEP_STATEMENT = "INSERT INTO step (APP_ID, SEQUENCE_ID, FIXTURE_ID, STATUS, NUMBER, BET_ID) VALUES (%1, %2, %3, %4, %5, %6)";
 var SELECT_ALL_SEQUENCES = "SELECT * FROM sequence";
 var SELECT_ALL_STEPS_FOR_SEQUENCE = "SELECT * FROM step WHERE SEQUENCE_ID = %1";
+var SELECT_STEP_STATEMENT = "SELECT * FROM step WHERE APP_ID = %1";
+var UPDATE_STEP_STATEMENT = "UPDATE step SET STATUS = %1 WHERE APP_ID = %2";
 
 function MysqlConnector(options) {
 	this.connection = mysql.createConnection(options);
@@ -262,6 +264,7 @@ MysqlConnector.prototype.updateSequence = function(appId, status, currentStep, c
 		updateSequenceQuery.setParameter('2', currentStep);
 		updateSequenceQuery.setParameter('3', appId);
 
+console.log(updateSequenceQuery.getQuery());
 		this.connection.query(updateSequenceQuery.getQuery(), function (err, rows, fields) {
 			if (err) {
 				throw err;
@@ -284,21 +287,46 @@ MysqlConnector.prototype.selectAllSequences = function(cb) {
 };
 
 
-MysqlConnector.prototype.insertStep = function(sequenceId, fixtureId, status, number, betId, cb) {
-	var insertStepQuery = require('./query')(INSERT_STEP_STATEMENT);
-		insertStepQuery.setParameter('1', sequenceId);
-		insertStepQuery.setParameter('2', fixtureId);
-		insertStepQuery.setParameter('3', status);
-		insertStepQuery.setParameter('4', number);
-		insertStepQuery.setParameter('5', betId);
+MysqlConnector.prototype.insertUpdateStep = function(id, sequenceId, fixtureId, status, number, betId, cb) {
+	var selectStepQuery = require('./query')(SELECT_STEP_STATEMENT);
+	selectStepQuery.setParameter('1', id);
+		
+	var self = this;
+	this.connection.query(selectStepQuery.getQuery(), function (err, rows, fields) {
+		if (err) {
+			throw err;
+		}
+		if (rows.length === 0) {
+			var insertStepQuery = require('./query')(INSERT_STEP_STATEMENT);
+			insertStepQuery.setParameter('1', id);
+			insertStepQuery.setParameter('2', sequenceId);
+			insertStepQuery.setParameter('3', fixtureId);
+			insertStepQuery.setParameter('4', status);
+			insertStepQuery.setParameter('5', number);
+			insertStepQuery.setParameter('6', betId);
 
-		this.connection.query(insertStepQuery.getQuery(), function (err, rows, fields) {
-			if (err) {
-				throw err;
-			}
+			self.connection.query(insertStepQuery.getQuery(), function (err, rows, fields) {
+				if (err) {
+					throw err;
+				}
 
-			cb(rows);
-		});
+				cb(rows);
+			});
+		} else {
+			var updateStepQuery = require('./query')(UPDATE_STEP_STATEMENT);
+			updateStepQuery.setParameter('1', status);
+			updateStepQuery.setParameter('2', id);
+				
+			self.connection.query(updateStepQuery.getQuery(), function (err, rows, fields) {
+				if (err) {
+					throw err;
+				}
+
+				cb(rows);
+			});
+		}
+
+	});
 };
 
 MysqlConnector.prototype.selectStepsForSequence = function(sequenceId, cb) {
@@ -312,6 +340,34 @@ MysqlConnector.prototype.selectStepsForSequence = function(sequenceId, cb) {
 
 			cb(rows);
 		});
+};
+
+MysqlConnector.prototype.selectStep = function(id, cb) {
+	var selectStepQuery = require('./query')(SELECT_STEP_STATEMENT);
+	selectStepQuery.setParameter('1', id);
+		
+	this.connection.query(selectStepQuery.getQuery(), function (err, rows, fields) {
+		if (err) {
+			throw err;
+		}
+
+		cb(rows);
+	});
+};
+
+MysqlConnector.prototype.updateStep = function(id, status, cb) {
+	var updateStepQuery = require('./query')(UPDATE_STEP_STATEMENT);
+	updateStepQuery.setParameter('1', status);
+	updateStepQuery.setParameter('2', id);
+		
+	console.log(updateStepQuery.getQuery());
+	this.connection.query(updateStepQuery.getQuery(), function (err, rows, fields) {
+		if (err) {
+			throw err;
+		}
+
+		cb(rows);
+	});
 };
 
 module.exports = MysqlConnector;
