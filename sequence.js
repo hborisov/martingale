@@ -66,9 +66,20 @@ SequenceApi.prototype.saveStepToDB = function(step, cb) {
 };
 
 SequenceApi.prototype.iterator = function(item, callback) {
-	var sequence = new Sequence(item.FIXTURE_ID, item.TEAM, item.APP_ID, item.CURRENT_STEP, item.STATUS, moment(item.DATE_STARTED).format('YYYY-MM-DD'));
+	for (var j=0; j<this.sequences.length; j++) {
+		if (this.sequences[j].id === item.APP_ID && item.STATUS === 'FINISHED') {
+			this.sequences.splice(j, 1);
+			callback(null);
+			return;
+		} else if (this.sequences[j].id === item.APP_ID) {
+			callback(null);
+			return;
+		}
+	}
 
+	var sequence = new Sequence(item.FIXTURE_ID, item.TEAM, item.APP_ID, item.CURRENT_STEP, item.STATUS, moment(item.DATE_STARTED).format('YYYY-MM-DD'));
 	if (sequence.status === 'RUNNING') {
+
 		var self = this;
 		connectionApi.selectStepsForSequence(item.APP_ID, function(steps) {
 			for (var i=0; i<steps.length; i++) {
@@ -119,6 +130,7 @@ SequenceApi.prototype.next = function(sequenceId, cb) {
 	var self = this;
 	if (sequence === undefined) {
 		console.log('no sequences found');
+		cb();
 		return;
 	}
 
@@ -126,6 +138,7 @@ SequenceApi.prototype.next = function(sequenceId, cb) {
 
 	if (step === undefined) {
 		console.log('no steps found');
+		cb();
 		return;
 	}
 
@@ -133,7 +146,7 @@ SequenceApi.prototype.next = function(sequenceId, cb) {
 	fixturesApi.readFixture(step.fixtureId.toString(), function(rows) {
 		if (rows.length === 1 && rows[0].STATUS === 'Fin') {
 			if (rows[0].FT_RESULT === 'D') {
-				sequence.finish();
+				sequence.finish(cb);
 			} else {
 				fixturesApi.readNextFixture(sequence.team, moment(rows[0].MATCH_DATE).format('YYYY-MM-DD'), function(fixture) {
 					console.log(fixture.ID);
@@ -183,13 +196,15 @@ Sequence.finishCurrentStep = function() {
 
 Sequence.prototype.finish = function(cb) {
 	Sequence.finishCurrentStep.call(this);
+	this.status = 'FINISHED';
+
 	console.log('finishing');
 	console.log(this);
 	
 	connectionApi.updateSequence(this.id, 'FINISHED', this.currentStep.toString(), function() {
 		console.log('finished sequence');
 	});
-	//cb();
+	cb();
 };
 
 Sequence.prototype.printCurrentStep = function( ) {
@@ -224,5 +239,15 @@ SequenceApi.prototype.printSequences = function(fixtureId, team) {
 		this.sequences[i].printSequence();
 	}
 };
+
+SequenceApi.prototype.getSequences = function(cb) {
+	var self = this;
+	SequenceApi.prototype.load.call(self, function() {
+		cb(self.sequences);
+	});
+	
+};
+
+
 
 module.exports = SequenceApi;
