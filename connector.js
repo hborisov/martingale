@@ -10,7 +10,11 @@ var INSERT_BET_STATEMENT = "INSERT INTO bet (FIXTURE_ID, AMOUNT, ODD, TEAM, BET,
 var UPDATE_BET_STATEMENT = "UPDATE bet SET RESULT = %1 WHERE ID = %2";
 var SELECT_ALL_BETS = "SELECT * FROM BET";
 var SELECT_ALL_PENDING_BETS = "SELECT * FROM BET WHERE RESULT = 'PENDING'";
-
+var INSERT_SEQUENCE_STATEMENT = "INSERT INTO sequence (APP_ID, FIXTURE_ID, STATUS, CURRENT_STEP, TEAM, DATE_STARTED) VALUES (%1, %2, %3, %4, %5, %6)";
+var UPDATE_SEQUENCE_STATEMENT = "UPDATE sequence SET STATUS = %1, CURRENT_STEP = %2 WHERE APP_ID = %3";
+var INSERT_STEP_STATEMENT = "INSERT INTO step (SEQUENCE_ID, FIXTURE_ID, STATUS, NUMBER, BET_ID) VALUES (%1, %2, %3, %4, %5)";
+var SELECT_ALL_SEQUENCES = "SELECT * FROM sequence";
+var SELECT_ALL_STEPS_FOR_SEQUENCE = "SELECT * FROM step WHERE SEQUENCE_ID = %1";
 
 function MysqlConnector(options) {
 	this.connection = mysql.createConnection(options);
@@ -232,6 +236,82 @@ MysqlConnector.prototype.selectAllPendingBets = function(cb) {
 
 		cb(rows);
 	});
+};
+
+MysqlConnector.prototype.insertSequence = function(appId, fixtureId, status, currentStep, team, dateStarted, cb) {
+	var insertSequenceQuery = require('./query')(INSERT_SEQUENCE_STATEMENT);
+		insertSequenceQuery.setParameter('1', appId);
+		insertSequenceQuery.setParameter('2', fixtureId);
+		insertSequenceQuery.setParameter('3', status);
+		insertSequenceQuery.setParameter('4', currentStep);
+		insertSequenceQuery.setParameter('5', team);
+		insertSequenceQuery.setParameter('6', dateStarted);
+
+		this.connection.query(insertSequenceQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
+
+			cb(rows);
+		});
+};
+
+MysqlConnector.prototype.updateSequence = function(appId, status, currentStep, cb) {
+	var updateSequenceQuery = require('./query')(UPDATE_SEQUENCE_STATEMENT);
+		updateSequenceQuery.setParameter('1', status);
+		updateSequenceQuery.setParameter('2', currentStep);
+		updateSequenceQuery.setParameter('3', appId);
+
+		this.connection.query(updateSequenceQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
+
+			cb(rows);
+		});
+};
+
+MysqlConnector.prototype.selectAllSequences = function(cb) {
+	var selectSequencesQuery = require('./query')(SELECT_ALL_SEQUENCES);
+		
+	this.connection.query(selectSequencesQuery.getQuery(), function (err, rows, fields) {
+		if (err) {
+			throw err;
+		}
+
+		cb(rows);
+	});
+};
+
+
+MysqlConnector.prototype.insertStep = function(sequenceId, fixtureId, status, number, betId, cb) {
+	var insertStepQuery = require('./query')(INSERT_STEP_STATEMENT);
+		insertStepQuery.setParameter('1', sequenceId);
+		insertStepQuery.setParameter('2', fixtureId);
+		insertStepQuery.setParameter('3', status);
+		insertStepQuery.setParameter('4', number);
+		insertStepQuery.setParameter('5', betId);
+
+		this.connection.query(insertStepQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
+
+			cb(rows);
+		});
+};
+
+MysqlConnector.prototype.selectStepsForSequence = function(sequenceId, cb) {
+	var selectStepsForSequence = require('./query')(SELECT_ALL_STEPS_FOR_SEQUENCE);
+		selectStepsForSequence.setParameter('1', sequenceId);
+		
+		this.connection.query(selectStepsForSequence.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
+
+			cb(rows);
+		});
 };
 
 module.exports = MysqlConnector;

@@ -57,13 +57,10 @@ MartinGaleStrategy.prototype.separateTeamResults = function() {
 		currentMatch.STATUS = this.matches[i].STATUS;
 		if (this.matches[i].FT_RESULT === "A") {
 			currentMatch.FT_RESULT = "win";
-			//this.teamResults.push(currentMatch);
 		} else if (this.matches[i].FT_RESULT === "H") {
 			currentMatch.FT_RESULT = "lose";
-			//this.teamResults.push(currentMatch);
 		} else if (this.matches[i].FT_RESULT === "D") {
 			currentMatch.FT_RESULT = "draw";
-			//this.teamResults.push(currentMatch);
 		}
 		
 		if (currentMatch.STATUS === 'Fin') {
@@ -77,17 +74,14 @@ MartinGaleStrategy.prototype.separateTeamResults = function() {
 		currentMatch.STATUS = this.matches[i].STATUS;
 		if (this.matches[i].FT_RESULT === "H") {
 			currentMatch.FT_RESULT = "win";
-			//this.teamResults.push(currentMatch);
 		} else if (this.matches[i].FT_RESULT === "A") {
 			currentMatch.FT_RESULT = "lose";
-			//this.teamResults.push(currentMatch);
 		} else if (this.matches[i].FT_RESULT === "D") {
 			currentMatch.FT_RESULT = "draw";
-			//this.teamResults.push(currentMatch);
 		}
 
 		if (currentMatch.STATUS === 'Fin') {
-			this.teamResults.push(currentMatch);	
+			this.teamResults.push(currentMatch);
 		}
 		
 	}
@@ -101,6 +95,10 @@ MartinGaleStrategy.prototype.separateTeams = function() {
 		
 		this.teams[this.teamResults[i].TEAM].push(this.teamResults[i]);
 	}
+};
+
+MartinGaleStrategy.prototype.sortByLeague = function() {
+	
 };
 
 MartinGaleStrategy.prototype.len = function() {
