@@ -12,6 +12,11 @@ var bets = new B();
 
 var app = express();
 
+app.configure(function() {
+	app.use(express.bodyParser());
+	app.use(express.static(__dirname + '\\webapp'));
+});
+
 app.get('/api/sequence', function(req, res) {
   /*res.type('application/json');
   res.send('i am a beautiful butterfly');*/
@@ -26,8 +31,8 @@ app.post('/internal/sequence/:id/advance', function(req, res) {
 	});
 });
 
-app.post('/api/sequence/:fixtureId/:teamName', function(req, res) {
-	se.startNewSequence(req.params.fixtureId, req.params.teamName, function() {
+app.post('/api/sequence', function(req, res) {
+	se.startNewSequence(req.body.fixtureId, req.body.teamName, function() {
 		res.json({status: 'success'});
 	});
 });
@@ -35,6 +40,12 @@ app.post('/api/sequence/:fixtureId/:teamName', function(req, res) {
 app.get('/api/fixture', function(req, res) {
 	fixtures.readFixtures(function(fixtures){
 		res.json(fixtures);
+	});
+});
+
+app.get('/api/fixture/:id', function(req, res) {
+	fixtures.readFixture(req.params.id, function(fixture){
+		res.json(fixture);
 	});
 });
 
@@ -49,21 +60,18 @@ app.get('/api/bet', function(req, res) {
 		});
 	}
 });
-/*
-app.get('/api/bet/pending', function(req, res) {
-	
-});*/
 
 app.post('/api/bet', function(req, res) {
 	//:fixtureId/:amount/:odd/:team/:bet
 
-	console.log(req.query.amount);
-	bets.placeBet(req.query.fixtureId, req.query.amount, req.query.odd, req.query.team, req.query.bet, function() {
+	console.log(req.query);
+	console.log(req.params);
+	console.log(req.body);
+	bets.placeBet(req.body.fixtureId, req.body.amount, req.body.odd, req.body.teamName, req.body.bet, function() {
 		res.json({status: 'success'});
 	});
 });
 
-app.configure(function() {
-	app.use(express.static(__dirname + '\\webapp'));
-});
+
+
 app.listen(process.env.PORT || 8080);

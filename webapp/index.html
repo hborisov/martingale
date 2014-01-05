@@ -26,6 +26,50 @@
 
   <body style="">
 
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            <form id="start-sequence-form" name="start-sequence-form" role="form">
+              <div class="form-group">
+                <label for="fixtureId">Fixture Id</label>
+                <input id="fixtureId" name="fixtureId" class="form-control" type="text">
+                <label for="homeTeam">Home Team</label>
+                <input id="homeTeam" name="homeTeam" class="form-control" type="text">
+                <label for="awayTeam">Away Team</label>
+                <input id="awayTeam" name="awayTeam" class="form-control" type="text">
+              </div>
+              <div class="form-group">
+                <label for="teamName">Team Name</label>
+                <input id="teamName" name="teamName" class="form-control" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="odd">Odd</label>
+                <input id="odd" name="odd" class="form-control" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="amount">Odd</label>
+                <input id="amount" name="amount" class="form-control" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="bet">Bet</label>
+                <input id="bet" name="bet" class="form-control" type="text" />
+              </div>
+          </div>
+          </form>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button id="modalSubmit" type="button" class="btn btn-primary" >Place Bet Start Sequence</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
@@ -54,7 +98,11 @@
         <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
       </div>
 
-      <div id="fixture-table" style="width:300px"></div>
+      <div class="row">
+        <div class="col-md-10"><div id="sequence-table" style="width:300px"></div></div>
+        <div class="col-md-10"><div id="fixture-table" style="width:300px"></div></div>
+      </div>
+      
 
     </div><!-- /.container -->
 
@@ -64,9 +112,76 @@
     <script src="js/jquery-1.10.2.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.watable.js" type="text/javascript" charset="utf-8"></script>
+     <!--<script src="/static/datepicker/bootstrap-datepicker.js" type="text/javascript" charset="utf-8"></script>-->
     <script type="text/javascript">
       $(document).ready( function() {
-        var waTable = $('#fixture-table').WATable({
+        $('#myModal').on('show.bs.modal', function (e) {
+            // do something...\
+            //alert(window.modalData);
+            $('#fixtureId').val(window.modalData.id);
+            $('#homeTeam').val(window.modalData.homeTeam);
+            $('#awayTeam').val(window.modalData.awayTeam);
+        });
+
+        $('#modalSubmit').on('click', function(e) {
+          var data = $("#start-sequence-form").serialize();
+          /*console.log(data);
+          $.ajax({
+            type: "POST",
+            url: 'api/bet',
+            data: data,
+            success: function() {alert('cccc');},
+            dataType: 'text'
+          });*/
+          $.post('api/bet', data, function(response) {
+            $.post('api/sequence', data, function(response2) {
+              console.log('bet and sequence created');
+              $('#myModal').modal('hide');
+            });
+          });
+        });
+
+        var fixtureTable = $('#fixture-table').WATable({
+            pageSize: 15,                //Sets the initial pagesize
+            filter: true,               //Show filter fields
+            columnPicker: true,         //Show the columnPicker button
+            pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+            types: {                    //Following are some specific properties related to the data types
+                string: {
+                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
+                },
+                number: {
+                    decimals: 1   //Sets decimal precision for float types
+                },
+                bool: {
+                    //filterTooltip: false
+                },
+                date: {
+                  utc: true,            //Show time as universal time, ie without timezones.
+                  //format: 'yy/dd/MM',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
+                }
+            },
+            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+                console.log('row clicked');   //data.event holds the original jQuery event.
+                console.log(data);            //data.row holds the underlying row you supplied.
+                                              //data.column holds the underlying column you supplied.
+                                              //data.checked is true if row is checked.
+                                              //'this' keyword holds the clicked element.
+                 window.modalData = data.row;                             
+                $('#myModal').modal();
+                if ( $(this).hasClass('userId') ) {
+                  data.event.preventDefault();
+                  alert('You clicked userId: ' + data.row.userId);
+                }
+            }
+        }).data('WATable');
+
+      var sequenceTable = $('#sequence-table').WATable({
              pageSize: 15,                //Sets the initial pagesize
             filter: true,               //Show filter fields
             columnPicker: true,         //Show the columnPicker button
@@ -119,7 +234,7 @@
 
         
         
-          var cols = {
+          var fixtureCols = {
               id: {
                 index: 1,
                 type: "number",
@@ -160,8 +275,7 @@
             };
           
 
-          var rows = [];
-          console.log('data');
+          var fixtureRows = [];
           $.get('api/fixture', function(data) {
             for (var i=0; i<data.length; i++) {
               var row = {};
@@ -174,20 +288,111 @@
               row.ftAwayGoals = data[i].FT_AWAY_GOALS;
               row.ftResult = data[i].FT_RESULT;
               row.status = data[i].STATUS;
-              rows.push(row);
+              fixtureRows.push(row);
             }
 
             var enddata = {
-              cols: cols,
-              rows: rows
+              cols: fixtureCols,
+              rows: fixtureRows
             };
             
-            waTable.setData(enddata);
+            fixtureTable.setData(enddata);
+          });
+
+          var sequenceCols = {
+                  id: {
+                    index: 1,
+                    type: "string",
+                    unique: true
+                  },
+                  team: {
+                    index: 2,
+                    type: "string"
+                  },
+                  status: {
+                    index: 3,
+                    type: "string"
+                  },
+                  dateStarted: {
+                    index: 4,
+                    type: "date"
+                  },
+                  homeTeam: {
+                    index: 5,
+                    type: "string"
+                  },
+                  awayTeam: {
+                    index: 6,
+                    type: "string"
+                  },
+                  amount: {
+                    index: 7,
+                    type: "number"
+                  },
+                  odd: {
+                    index: 8,
+                    type: "number"
+                  },
+                  result: {
+                    index: 9,
+                    type: "string"
+                  }
+                };
+
+          var sequenceRows = [];
+          $.get('api/sequence', function(sequenceData) {
+            $.get('api/fixture', function(fixtureData) {
+              $.get('api/bet', function(betData) {
+                
+                for (var i=0; i<sequenceData.length; i++) {
+                  var sequenceRow = {};
+                  sequenceRow.id = sequenceData[i].id;
+                  sequenceRow.team = sequenceData[i].team;
+                  sequenceRow.status = sequenceData[i].status;
+                  sequenceRow.dateStarted = sequenceData[i].dateStarted;
+                  sequenceRows.push(sequenceRow);
+
+                  for (var j=0; j<sequenceData[i].steps.length; j++) {
+                    var fixtureId = sequenceData[i].steps[j].fixtureId;
+                    for (var p=0; p<fixtureData.length; p++) {
+                      if (fixtureData[p].ID === fixtureId) {
+                        var fixture = fixtureData[p];
+                      }
+
+                    }
+
+                    sequenceRow = {};
+                    sequenceRow.homeTeam = fixture.HOME_TEAM;
+                    sequenceRow.awayTeam = fixture.AWAY_TEAM;
+
+                    for (var q=0; q<betData.length; q++) {
+                      if (betData[q].FIXTURE_ID === sequenceData[i].steps[j].fixtureId) {
+                        sequenceRow.amount = betData[q].AMOUNT;
+                        sequenceRow.odd = betData[q].ODD;
+                        sequenceRow.result = betData[q].RESULT;
+                        var resultClass = '';
+                        if (sequenceRow.result === 'WIN') {
+                          resultClass = 'green';
+                        } else if (sequenceRow.result === 'LOSE') {
+                          resultClass = 'red';
+                        }
+                        sequenceRow.resultFormat = "<div class='" + resultClass + "'>{0}</div>";//" + weightClass + "
+                      }
+                    }
+
+                    
+
+                    sequenceRows.push(sequenceRow);
+                  }
+                }
+
+                sequenceTable.setData({cols: sequenceCols, rows: sequenceRows});
+              });
+            });
           });
 
     });
     </script>
-    <!--<link rel='stylesheet' href="css/bootstrap.min.css"/>-->
     
 
 </body></html>
