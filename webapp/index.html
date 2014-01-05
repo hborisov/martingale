@@ -11,9 +11,12 @@
     <title>Martin Gale</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css"> <!--//netdna.bootstrapcdn.com/bootstrap/3.0.3/-->
     <link href="css/starter-template.css" rel="stylesheet">
     <link rel='stylesheet' href='css/watable.css'/>
+    <style type="text/css">
+        body { padding: 30px; font-size: 12px }
+    </style>
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
@@ -24,7 +27,7 @@
     <![endif]-->
   </head>
 
-  <body style="">
+  <body>
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -53,7 +56,7 @@
                 <input id="odd" name="odd" class="form-control" type="text" />
               </div>
               <div class="form-group">
-                <label for="amount">Odd</label>
+                <label for="amount">Amount</label>
                 <input id="amount" name="amount" class="form-control" type="text" />
               </div>
               <div class="form-group">
@@ -70,37 +73,41 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
+    
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="http://getbootstrap.com/examples/starter-template/#">MartinGale</a>
+          <a class="brand" href="#">Project name</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
         </div>
-        <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="http://getbootstrap.com/examples/starter-template/#">Home</a></li>
-            <li><a href="http://getbootstrap.com/examples/starter-template/#about">About</a></li>
-            <li><a href="http://getbootstrap.com/examples/starter-template/#contact">Contact</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
       </div>
     </div>
 
     <div class="container">
 
-      <div class="starter-template">
-        <h1>Bootstrap starter template</h1>
-        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
+      <div class="row ">
+        <h1>Sequences</h1>
+        <div class="span10">
+          <div id="sequence-table" ></div>
+        </div>
       </div>
-
-      <div class="row">
-        <div class="col-md-10"><div id="sequence-table" style="width:300px"></div></div>
-        <div class="col-md-10"><div id="fixture-table" style="width:300px"></div></div>
+      <div class="row ">
+        <h1>Fixtures</h1>
+        <div class="span10">
+          <div id="fixture-table" ></div>
+        </div>
       </div>
       
 
@@ -109,8 +116,8 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="js/jquery-1.10.2.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script> <!--//netdna.bootstrapcdn.com/bootstrap/3.0.3/-->
     <script src="js/jquery.watable.js" type="text/javascript" charset="utf-8"></script>
      <!--<script src="/static/datepicker/bootstrap-datepicker.js" type="text/javascript" charset="utf-8"></script>-->
     <script type="text/javascript">
@@ -219,21 +226,6 @@
             }
         }).data('WATable');
 
-        /* 
-        "ID": 927,
-        "DIVISION": "ECH",
-        "MATCH_DATE": "2014-01-29T22:00:00.000Z",
-        "HOME_TEAM": "NOTTM FOREST",
-        "AWAY_TEAM": "WATFORD",
-        "FT_HOME_GOALS": -1,
-        "FT_AWAY_GOALS": -1,
-        "FT_RESULT": "x",
-        "STATUS": "Sched"
-        */
-        
-
-        
-        
           var fixtureCols = {
               id: {
                 index: 1,
@@ -379,8 +371,6 @@
                         sequenceRow.resultFormat = "<div class='" + resultClass + "'>{0}</div>";//" + weightClass + "
                       }
                     }
-
-                    
 
                     sequenceRows.push(sequenceRow);
                   }
