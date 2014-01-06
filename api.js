@@ -2,6 +2,7 @@ var express = require('express');
 var F = require('./fixture');
 var S = require('./sequence.js');
 var B = require('./bet');
+var M = require('./martin_gale_strategy');
 
 var fixtures = new F();
 var se = new S();
@@ -9,12 +10,13 @@ se.load(function() {
 	console.log('sequences loaded.');
 });
 var bets = new B();
+var mg = new M();
 
 var app = express();
 
 app.configure(function() {
 	app.use(express.bodyParser());
-	app.use(express.static(__dirname + '\\webapp'));
+	app.use(express.static(__dirname + '/webapp'));
 });
 
 app.get('/api/sequence', function(req, res) {
@@ -72,6 +74,12 @@ app.post('/api/bet', function(req, res) {
 	});
 });
 
-
+app.get('/api/draws', function(req, res) {
+	mg.load(function() {
+		mg.separateTeamResults();
+		mg.separateTeams();
+		res.json(mg.getMatchesWithoutDraw());
+	});
+});
 
 app.listen(process.env.PORT || 8080);

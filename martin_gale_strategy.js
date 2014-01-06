@@ -28,6 +28,7 @@ MartinGaleStrategy.prototype.load = function (cb) {
 
 MartinGaleStrategy.prototype.getMatchesWithoutDraw = function() {
 	var series = 0;
+	var teamsWithoutDraw = [];
 	for (var key in this.teams) {
 		series = 0;
 		for(var i=0; i<this.teams[key].length; i++) {
@@ -40,10 +41,16 @@ MartinGaleStrategy.prototype.getMatchesWithoutDraw = function() {
 			}
 		}
 		if (series >= 3) {
-			console.log(key + " : " + series);
+			var teamWithoutDraw = {};
+			teamWithoutDraw.teamName = key;
+			teamWithoutDraw.division = this.teams[key][0].DIVISION;
+			teamWithoutDraw.series = series;
+			teamsWithoutDraw.push(teamWithoutDraw);
 			series = 0;
 		}
 	}
+
+	return teamsWithoutDraw;
 };
 
 MartinGaleStrategy.prototype.separateTeamResults = function() {

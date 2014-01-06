@@ -98,15 +98,21 @@
     <div class="container">
 
       <div class="row ">
+        <h1>Nodraws</h1>
+        <div class="span10">
+          <div id="draws-table"></div>
+        </div>
+      </div>
+      <div class="row ">
         <h1>Sequences</h1>
         <div class="span10">
-          <div id="sequence-table" ></div>
+          <div id="sequence-table"></div>
         </div>
       </div>
       <div class="row ">
         <h1>Fixtures</h1>
         <div class="span10">
-          <div id="fixture-table" ></div>
+          <div id="fixture-table"></div>
         </div>
       </div>
       
@@ -193,6 +199,44 @@
             filter: true,               //Show filter fields
             columnPicker: true,         //Show the columnPicker button
             pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+            types: {                    //Following are some specific properties related to the data types
+                string: {
+                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
+                },
+                number: {
+                    decimals: 1   //Sets decimal precision for float types
+                },
+                bool: {
+                    //filterTooltip: false
+                },
+                date: {
+                  utc: true,            //Show time as universal time, ie without timezones.
+                  //format: 'yy/dd/MM',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
+                }
+            },
+            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+                console.log('row clicked');   //data.event holds the original jQuery event.
+                console.log(data);            //data.row holds the underlying row you supplied.
+                                              //data.column holds the underlying column you supplied.
+                                              //data.checked is true if row is checked.
+                                              //'this' keyword holds the clicked element.
+                if ( $(this).hasClass('userId') ) {
+                  data.event.preventDefault();
+                  alert('You clicked userId: ' + data.row.userId);
+                }
+            }
+        }).data('WATable');
+
+      var drawsTable = $('#draws-table').WATable({
+            pageSize: 20,                //Sets the initial pagesize
+            filter: true,               //Show filter fields
+            columnPicker: true,         //Show the columnPicker button
+            pageSizes: [20, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
             hidePagerOnEmpty: true,     //Removes the pager if data is empty.
             checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
             preFill: true,               //Use POST httpmethod to webservice. Default is GET.
@@ -380,6 +424,27 @@
               });
             });
           });
+
+      var drawsCols = {
+          teamName: {
+            index: 1,
+            type: "string"
+          },
+          division: {
+            index: 2,
+            type: "string"
+          },
+          series: {
+            index: 3,
+            type: "number"
+          }
+        };
+
+      var drawsRows = [];
+      $.get('api/draws', function(drawsData) {
+          drawsRows = drawsData;
+          drawsTable.setData({cols: drawsCols, rows: drawsRows});
+      });
 
     });
     </script>

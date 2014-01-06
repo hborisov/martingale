@@ -4,6 +4,6 @@ var mg = new mgs();
 mg.load(function() {
 mg.separateTeamResults();
 mg.separateTeams();
-mg.getMatchesWithoutDraw();
+console.log(mg.getMatchesWithoutDraw());
 process.exit();
 });
