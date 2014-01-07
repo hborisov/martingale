@@ -19,8 +19,14 @@ var SELECT_STEP_STATEMENT = "SELECT * FROM step WHERE APP_ID = %1";
 var UPDATE_STEP_STATEMENT = "UPDATE step SET STATUS = %1 WHERE APP_ID = %2";
 
 function MysqlConnector(options) {
-	this.connection = mysql.createConnection(options);
+	this.pool  = mysql.createPool(options);
+	//this.connection = undefined;
+	/*this.pool.getConnection(function(err, newConnection) {
+		this.connection = newConnection;
+	});*///mysql.createConnection(options);
 }
+
+
 
 MysqlConnector.prototype.checkIfMatchExists = function(matchData, cb) {
 	var checkMatchQuery = require('./query')(SELECT_MATCH_STATEMENT);
@@ -29,13 +35,16 @@ MysqlConnector.prototype.checkIfMatchExists = function(matchData, cb) {
 	checkMatchQuery.setParameter('3', matchData.HOME_TEAM);
 	checkMatchQuery.setParameter('4', matchData.AWAY_TEAM);
    
-    this.connection.query(checkMatchQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+   this.pool.getConnection(function(err, connection) {
+		connection.query(checkMatchQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		return (rows.length > 0) ? true : false;
-	});
+			connection.release();
+			return (rows.length > 0) ? true : false;
+		});
+   });
 };
 
 MysqlConnector.prototype.insertNewMatch = function(matchData, cb) {
@@ -49,110 +58,123 @@ MysqlConnector.prototype.insertNewMatch = function(matchData, cb) {
 	insertMatchQuery.setParameter('7', matchData.FT_RESULT);
 	insertMatchQuery.setParameter('8', matchData.STATUS);
 	
-	this.connection.query(insertMatchQuery.getQuery(), cb);
+	this.pool.getConnection(function(err, connection) {
+		connection.query(insertMatchQuery.getQuery(), function() {
+			cb();
+			connection.release();
+		});
+	});
 };
 
 MysqlConnector.prototype.insertIfMatchNotExistsWithCallback = function(matchData, cb, cnt) {
-	var self = this;
-
 	var checkMatchQuery = require('./query')(SELECT_MATCH_STATEMENT);
 	checkMatchQuery.setParameter('1', matchData.DIVISION);
 	checkMatchQuery.setParameter('2', matchData.MATCH_DATE);
 	checkMatchQuery.setParameter('3', matchData.HOME_TEAM);
 	checkMatchQuery.setParameter('4', matchData.AWAY_TEAM);
 
-    this.connection.query(checkMatchQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, connection) {
+		connection.query(checkMatchQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		if(rows.length === 0) {
-			var insertMatchQuery = require('./query')(INSERT_MATCH_STATEMENT);
-			insertMatchQuery.setParameter('1', matchData.DIVISION);
-			insertMatchQuery.setParameter('2', matchData.MATCH_DATE);
-			insertMatchQuery.setParameter('3', matchData.HOME_TEAM);
-			insertMatchQuery.setParameter('4', matchData.AWAY_TEAM);
-			insertMatchQuery.setParameter('5', matchData.FT_HOME_GOALS);
-			insertMatchQuery.setParameter('6', matchData.FT_AWAY_GOALS);
-			insertMatchQuery.setParameter('7', matchData.FT_RESULT);
-			insertMatchQuery.setParameter('8', matchData.STATUS);
+			if(rows.length === 0) {
+				var insertMatchQuery = require('./query')(INSERT_MATCH_STATEMENT);
+				insertMatchQuery.setParameter('1', matchData.DIVISION);
+				insertMatchQuery.setParameter('2', matchData.MATCH_DATE);
+				insertMatchQuery.setParameter('3', matchData.HOME_TEAM);
+				insertMatchQuery.setParameter('4', matchData.AWAY_TEAM);
+				insertMatchQuery.setParameter('5', matchData.FT_HOME_GOALS);
+				insertMatchQuery.setParameter('6', matchData.FT_AWAY_GOALS);
+				insertMatchQuery.setParameter('7', matchData.FT_RESULT);
+				insertMatchQuery.setParameter('8', matchData.STATUS);
 
-			self.connection.query(insertMatchQuery.getQuery(), function(err, rows, fields) {
-				if (err) {
-					throw err;
-				}
+				connection.query(insertMatchQuery.getQuery(), function(err, rows, fields) {
+					if (err) {
+						throw err;
+					}
 
+					cb(cnt);
+					connection.release();
+				});
+			} else {
 				cb(cnt);
-			});
-		} else {
-			cb(cnt);
-		}
+				connection.release();
+			}
+		});
 	});
 };
 
 MysqlConnector.prototype.insertUpdate = function(matchData, cnt, cb) {
-	var self = this;
-
 	var checkMatchQuery = require('./query')(SELECT_MATCH_STATEMENT);
 	checkMatchQuery.setParameter('1', matchData.DIVISION);
 	checkMatchQuery.setParameter('2', matchData.MATCH_DATE);
 	checkMatchQuery.setParameter('3', matchData.HOME_TEAM);
 	checkMatchQuery.setParameter('4', matchData.AWAY_TEAM);
 
-    this.connection.query(checkMatchQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, connection) {
+		connection.query(checkMatchQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		if(rows.length === 0) {
-			var insertMatchQuery = require('./query')(INSERT_MATCH_STATEMENT);
-			insertMatchQuery.setParameter('1', matchData.DIVISION);
-			insertMatchQuery.setParameter('2', matchData.MATCH_DATE);
-			insertMatchQuery.setParameter('3', matchData.HOME_TEAM);
-			insertMatchQuery.setParameter('4', matchData.AWAY_TEAM);
-			insertMatchQuery.setParameter('5', matchData.FT_HOME_GOALS);
-			insertMatchQuery.setParameter('6', matchData.FT_AWAY_GOALS);
-			insertMatchQuery.setParameter('7', matchData.FT_RESULT);
-			insertMatchQuery.setParameter('8', matchData.STATUS);
+			if(rows.length === 0) {
+				var insertMatchQuery = require('./query')(INSERT_MATCH_STATEMENT);
+				insertMatchQuery.setParameter('1', matchData.DIVISION);
+				insertMatchQuery.setParameter('2', matchData.MATCH_DATE);
+				insertMatchQuery.setParameter('3', matchData.HOME_TEAM);
+				insertMatchQuery.setParameter('4', matchData.AWAY_TEAM);
+				insertMatchQuery.setParameter('5', matchData.FT_HOME_GOALS);
+				insertMatchQuery.setParameter('6', matchData.FT_AWAY_GOALS);
+				insertMatchQuery.setParameter('7', matchData.FT_RESULT);
+				insertMatchQuery.setParameter('8', matchData.STATUS);
 
-			self.connection.query(insertMatchQuery.getQuery(), function(err, rows, fields) {
-				if (err) {
-					throw err;
-				}
+				connection.query(insertMatchQuery.getQuery(), function(err, rows, fields) {
+					if (err) {
+						throw err;
+					}
 
-				cb(cnt);
-			});
-		} else {
-			var updateMatchQuery = require('./query')(UPDATE_MATCH_STATEMENT);
-			updateMatchQuery.setParameter('1', matchData.FT_HOME_GOALS);
-			updateMatchQuery.setParameter('2', matchData.FT_AWAY_GOALS);
-			updateMatchQuery.setParameter('3', matchData.FT_RESULT);
-			updateMatchQuery.setParameter('4', matchData.STATUS);
-			updateMatchQuery.setParameter('5', matchData.DIVISION);
-			updateMatchQuery.setParameter('6', matchData.MATCH_DATE);
-			updateMatchQuery.setParameter('7', matchData.HOME_TEAM);
-			updateMatchQuery.setParameter('8', matchData.AWAY_TEAM);
+					cb(cnt);
+					connection.release();
+				});
+			} else {
+				var updateMatchQuery = require('./query')(UPDATE_MATCH_STATEMENT);
+				updateMatchQuery.setParameter('1', matchData.FT_HOME_GOALS);
+				updateMatchQuery.setParameter('2', matchData.FT_AWAY_GOALS);
+				updateMatchQuery.setParameter('3', matchData.FT_RESULT);
+				updateMatchQuery.setParameter('4', matchData.STATUS);
+				updateMatchQuery.setParameter('5', matchData.DIVISION);
+				updateMatchQuery.setParameter('6', matchData.MATCH_DATE);
+				updateMatchQuery.setParameter('7', matchData.HOME_TEAM);
+				updateMatchQuery.setParameter('8', matchData.AWAY_TEAM);
 
-			self.connection.query(updateMatchQuery.getQuery(), function(err, rows, fields) {
-				if (err) {
-					throw err;
-				}
+				connection.query(updateMatchQuery.getQuery(), function(err, rows, fields) {
+					if (err) {
+						throw err;
+					}
 
-				cb(cnt);
-			});
-
-		}
+					cb(cnt);
+					connection.release();
+				});
+			}
+		});
 	});
+    
 };
 
 MysqlConnector.prototype.selectAllMatches = function(cb) {
 	var selectAllMatchesQuery = require('./query')(SELECT_ALL_MATCHES);
-	this.connection.query(selectAllMatchesQuery.getQuery(), function(err, rows, fields) {
-		if(err) {
-			throw err;
-		}
 
-		cb(rows);
+	this.pool.getConnection(function(err, connection) {
+		connection.query(selectAllMatchesQuery.getQuery(), function(err, rows, fields) {
+			if(err) {
+				throw err;
+			}
+
+			cb(rows);
+			connection.release();
+		});
 	});
 };
 
@@ -160,12 +182,15 @@ MysqlConnector.prototype.selectMatchById = function(matchId, cb) {
 	var selectMatchByIdQuery = require('./query')(SELECT_MATCH_BYID_STATEMENT);
 		selectMatchByIdQuery.setParameter('1', matchId);
 
-	this.connection.query(selectMatchByIdQuery.getQuery(), function(err, rows, fields) {
-		if(err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, connection) {
+		connection.query(selectMatchByIdQuery.getQuery(), function(err, rows, fields) {
+			if(err) {
+				throw err;
+			}
 
-		cb(rows);
+			cb(rows);
+			connection.release();
+		});
 	});
 };
 
@@ -174,12 +199,15 @@ MysqlConnector.prototype.selectNextTeamMatch = function(team, date, cb) {
 		selectTeamMatchesAfterDateQuery.setParameter('1', date);
 		selectTeamMatchesAfterDateQuery.setParameter('2', team);
 
-	this.connection.query(selectTeamMatchesAfterDateQuery.getQuery(), function(err, rows, fields) {
-		if(err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, connection) {
+		connection.query(selectTeamMatchesAfterDateQuery.getQuery(), function(err, rows, fields) {
+			if(err) {
+				throw err;
+			}
 
-		cb(rows[0]);
+			cb(rows[0]);
+			connection.release();
+		});
 	});
 };
 
@@ -193,13 +221,16 @@ MysqlConnector.prototype.insertBet = function(fixtureId, amount, odd, team, bet,
 		insertBetQuery.setParameter('6', date);
 		insertBetQuery.setParameter('7', 'PENDING');
 
-		this.connection.query(insertBetQuery.getQuery(), function (err, rows, fields) {
+	this.pool.getConnection(function(err, connection) {
+		connection.query(insertBetQuery.getQuery(), function (err, rows, fields) {
 			if (err) {
 				throw err;
 			}
 
 			cb();
+			connection.release();
 		});
+	});
 };
 
 MysqlConnector.prototype.updateBet = function(betId, result, cb) {
@@ -207,36 +238,45 @@ MysqlConnector.prototype.updateBet = function(betId, result, cb) {
 		updateBetQuery.setParameter('1', result);
 		updateBetQuery.setParameter('2', betId);
 
-		this.connection.query(updateBetQuery.getQuery(), function (err, rows, fields) {
+	this.pool.getConnection(function(err, connection) {
+		connection.query(updateBetQuery.getQuery(), function (err, rows, fields) {
 			if (err) {
 				throw err;
 			}
 
 			cb(rows.changedRows);
+			connection.release();
 		});
+	});
 };
 
 MysqlConnector.prototype.selectAllBets = function(cb) {
 	var selectBetsQuery = require('./query')(SELECT_ALL_BETS);
 		
-	this.connection.query(selectBetsQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, connection) {
+		connection.query(selectBetsQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		cb(rows);
+			cb(rows);
+			connection.release();
+		});
 	});
 };
 
 MysqlConnector.prototype.selectAllPendingBets = function(cb) {
 	var selectBetsQuery = require('./query')(SELECT_ALL_PENDING_BETS);
-		
-	this.connection.query(selectBetsQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+	
+	this.pool.getConnection(function(err, connection) {
+		connection.query(selectBetsQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		cb(rows);
+			cb(rows);
+			connection.release();
+		});
 	});
 };
 
@@ -249,12 +289,15 @@ MysqlConnector.prototype.insertSequence = function(appId, fixtureId, status, cur
 		insertSequenceQuery.setParameter('5', team);
 		insertSequenceQuery.setParameter('6', dateStarted);
 
-		this.connection.query(insertSequenceQuery.getQuery(), function (err, rows, fields) {
-			if (err) {
-				throw err;
-			}
+		this.pool.getConnection(function(err, connection) {
+			connection.query(insertSequenceQuery.getQuery(), function (err, rows, fields) {
+				if (err) {
+					throw err;
+				}
 
-			cb(rows);
+				cb(rows);
+				connection.release();
+			});
 		});
 };
 
@@ -264,25 +307,30 @@ MysqlConnector.prototype.updateSequence = function(appId, status, currentStep, c
 		updateSequenceQuery.setParameter('2', currentStep);
 		updateSequenceQuery.setParameter('3', appId);
 
-console.log(updateSequenceQuery.getQuery());
-		this.connection.query(updateSequenceQuery.getQuery(), function (err, rows, fields) {
+	this.pool.getConnection(function(err, connection) {
+		connection.query(updateSequenceQuery.getQuery(), function (err, rows, fields) {
 			if (err) {
 				throw err;
 			}
 
 			cb(rows);
+			connection.release();
 		});
+	});
 };
 
 MysqlConnector.prototype.selectAllSequences = function(cb) {
 	var selectSequencesQuery = require('./query')(SELECT_ALL_SEQUENCES);
 		
-	this.connection.query(selectSequencesQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, conn) {
+		conn.query(selectSequencesQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		cb(rows);
+			cb(rows);
+			conn.release();
+		});
 	});
 };
 
@@ -291,54 +339,61 @@ MysqlConnector.prototype.insertUpdateStep = function(id, sequenceId, fixtureId, 
 	var selectStepQuery = require('./query')(SELECT_STEP_STATEMENT);
 	selectStepQuery.setParameter('1', id);
 		
-	var self = this;
-	this.connection.query(selectStepQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
-		if (rows.length === 0) {
-			var insertStepQuery = require('./query')(INSERT_STEP_STATEMENT);
-			insertStepQuery.setParameter('1', id);
-			insertStepQuery.setParameter('2', sequenceId);
-			insertStepQuery.setParameter('3', fixtureId);
-			insertStepQuery.setParameter('4', status);
-			insertStepQuery.setParameter('5', number);
-			insertStepQuery.setParameter('6', betId);
+	this.pool.getConnection(function(err, connection) {
+		connection.query(selectStepQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
+			if (rows.length === 0) {
+				var insertStepQuery = require('./query')(INSERT_STEP_STATEMENT);
+				insertStepQuery.setParameter('1', id);
+				insertStepQuery.setParameter('2', sequenceId);
+				insertStepQuery.setParameter('3', fixtureId);
+				insertStepQuery.setParameter('4', status);
+				insertStepQuery.setParameter('5', number);
+				insertStepQuery.setParameter('6', betId);
 
-			self.connection.query(insertStepQuery.getQuery(), function (err, rows, fields) {
-				if (err) {
-					throw err;
-				}
+				connection.query(insertStepQuery.getQuery(), function (err, rows, fields) {
+					if (err) {
+						throw err;
+					}
 
-				cb(rows);
-			});
-		} else {
-			var updateStepQuery = require('./query')(UPDATE_STEP_STATEMENT);
-			updateStepQuery.setParameter('1', status);
-			updateStepQuery.setParameter('2', id);
-				
-			self.connection.query(updateStepQuery.getQuery(), function (err, rows, fields) {
-				if (err) {
-					throw err;
-				}
+					cb(rows);
+					connection.release();
+				});
+			} else {
+				var updateStepQuery = require('./query')(UPDATE_STEP_STATEMENT);
+				updateStepQuery.setParameter('1', status);
+				updateStepQuery.setParameter('2', id);
+					
+				connection.query(updateStepQuery.getQuery(), function (err, rows, fields) {
+					if (err) {
+						throw err;
+					}
 
-				cb(rows);
-			});
-		}
+					cb(rows);
+					connection.release();
+				});
+			}
 
+		});
 	});
+	
 };
 
 MysqlConnector.prototype.selectStepsForSequence = function(sequenceId, cb) {
 	var selectStepsForSequence = require('./query')(SELECT_ALL_STEPS_FOR_SEQUENCE);
 		selectStepsForSequence.setParameter('1', sequenceId);
 		
-		this.connection.query(selectStepsForSequence.getQuery(), function (err, rows, fields) {
-			if (err) {
-				throw err;
-			}
+		this.pool.getConnection(function(err, connection) {
+			connection.query(selectStepsForSequence.getQuery(), function (err, rows, fields) {
+				if (err) {
+					throw err;
+				}
 
-			cb(rows);
+				cb(rows);
+				connection.release();
+			});
 		});
 };
 
@@ -346,12 +401,15 @@ MysqlConnector.prototype.selectStep = function(id, cb) {
 	var selectStepQuery = require('./query')(SELECT_STEP_STATEMENT);
 	selectStepQuery.setParameter('1', id);
 		
-	this.connection.query(selectStepQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, connection) {
+		connection.query(selectStepQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		cb(rows);
+			cb(rows);
+			connection.release();
+		});
 	});
 };
 
@@ -360,13 +418,15 @@ MysqlConnector.prototype.updateStep = function(id, status, cb) {
 	updateStepQuery.setParameter('1', status);
 	updateStepQuery.setParameter('2', id);
 		
-	console.log(updateStepQuery.getQuery());
-	this.connection.query(updateStepQuery.getQuery(), function (err, rows, fields) {
-		if (err) {
-			throw err;
-		}
+	this.pool.getConnection(function(err, connection) {
+		connection.query(updateStepQuery.getQuery(), function (err, rows, fields) {
+			if (err) {
+				throw err;
+			}
 
-		cb(rows);
+			cb(rows);
+			connection.release();
+		});
 	});
 };
 
