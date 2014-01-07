@@ -20,12 +20,12 @@ function Bet365Client(league) {
 		'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36',
 		'Accept-Language' : 'bg,en-GB;q=0.8,en;q=0.6',
 		'Cookie' : 'cp2=0',
-		'Host' : 'www.italiabet365.com'
+		'Host' : 'www.sportgiochi365.com'
 		//'accept-encoding' : 'gzip,deflate,sdch',
 	};
 
 	this.options = {
-		hostname: '127.0.0.1',//'www.italiabet365.com',
+		hostname: '127.0.0.1',//www.italiabet365.com','www.sportgiochi365.com'
 		port: 8888,
 		path: '/bg/',
 		method: 'GET',
@@ -33,7 +33,7 @@ function Bet365Client(league) {
 	};
 }
 
-Bet365Client.prototype.getOdds = function() {
+Bet365Client.prototype.getOdds = function(cb) {
 	var self = this;
 	async.waterfall(
 		[
@@ -50,9 +50,10 @@ Bet365Client.prototype.getOdds = function() {
 				Bet365Client.request4.call(self, callback);
 			}
 		],
-		function (err, caption) {
-			console.log("Finito La Comedia!");
-			process.exit();
+		function (err, oddsResult) {
+			//console.log(caption);
+			//process.exit();
+			cb(oddsResult);
 		}
 	);
 };
@@ -83,7 +84,7 @@ Bet365Client.request2 = function(callback) {
 	var self = this;
 	
 	this.options.path = '/home/?lng=19';
-	this.headers.Host = 'www.italiabet365.com';
+	this.headers.Host = 'www.sportgiochi365.com';//'www.italiabet365.com';
 	var cookies_concat = '';
 	for(var cks in this.cookies) {
 		cookies_concat += this.cookies[cks] + '; ';
@@ -112,13 +113,13 @@ Bet365Client.request2 = function(callback) {
 Bet365Client.request3 = function(location, callback) {
 	var self = this;
 
-	var base_host = 'http://www.italiabet365.com';
+	var base_host = 'http://www.sportgiochi365.com';//'http://www.italiabet365.com';
 	var base = location.substr(base_host.length, location.length-1);
 	
 	this.cb = Bet365Client.extractCB(location);
 
 	this.options.path = base;
-	this.headers.Referer = 'http://www.italiabet365.com/bg/';
+	this.headers.Referer = 'http://www.sportgiochi365.com/bg/';//'http://www.italiabet365.com/bg/';
 	var cookies_concat = '';
 	for(var cks in this.cookies) {
 		cookies_concat += this.cookies[cks] + '; ';
@@ -148,7 +149,7 @@ Bet365Client.request4 = function(callback) {
 	var self = this;
 
 	this.options.path = this.leaguePath;
-	this.headers.Referer = 'http://www.italiabet365.com/home/FlashGen4/WebConsoleApp.asp?lng=19&cb=' + this.cb;
+	this.headers.Referer = 'http://www.sportgiochi365.com/home/FlashGen4/WebConsoleApp.asp?lng=19&cb=' + this.cb;
 	cookies_concat = '';
 	this.cookies['session'] = this.cookies['session'] + '&pscp=' + this.leagueIdCookie;
 	for(var cks in this.cookies) {
@@ -203,9 +204,9 @@ Bet365Client.printResponse = function(res, callback) {
 	res.on('end', function() {
 		var buffer = Buffer.concat(gzipped_data);
 		var readOdds = new Odds(buffer.toString());
-		readOdds.print();
-
-		callback(null);
+		readOdds.get(function(oddsResult) {
+			callback(null, oddsResult);
+		});
 	});
 };
 

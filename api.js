@@ -3,6 +3,7 @@ var F = require('./fixture');
 var S = require('./sequence.js');
 var B = require('./bet');
 var M = require('./martin_gale_strategy');
+var Bet365Client = require('./bet365client');
 
 var fixtures = new F();
 var se = new S();
@@ -79,6 +80,13 @@ app.get('/api/draws', function(req, res) {
 		mg.separateTeamResults();
 		mg.separateTeams();
 		res.json(mg.getMatchesWithoutDraw());
+	});
+});
+
+app.get('/api/odds/:league', function(req, res) {
+	var bc = new Bet365Client(req.params.league);
+	bc.getOdds(function(odds) {
+		res.json(odds);
 	});
 });
 

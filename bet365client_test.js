@@ -8,6 +8,8 @@ if (process.argv[2] === undefined) {
 } else {
 	var league = process.argv[2];
 	var bc = new Bet365Client(league);
-	bc.getOdds();
+	bc.getOdds(function(odds) {
+		console.log(odds);
+	});
 }
 

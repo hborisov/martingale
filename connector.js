@@ -20,10 +20,6 @@ var UPDATE_STEP_STATEMENT = "UPDATE step SET STATUS = %1 WHERE APP_ID = %2";
 
 function MysqlConnector(options) {
 	this.pool  = mysql.createPool(options);
-	//this.connection = undefined;
-	/*this.pool.getConnection(function(err, newConnection) {
-		this.connection = newConnection;
-	});*///mysql.createConnection(options);
 }
 
 

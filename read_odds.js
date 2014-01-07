@@ -92,6 +92,10 @@ Odds.prototype.print = function() {
 	}
 };
 
+Odds.prototype.get = function(cb) {
+	cb(this.odds);
+};
+
 Odds.startsWith = function(str, starts) {
 	var counter = 0;
 	for(var j=0;  j<str.length && j<starts.length; j++) {
