@@ -20,13 +20,13 @@ function Bet365Client(league) {
 		'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36',
 		'Accept-Language' : 'bg,en-GB;q=0.8,en;q=0.6',
 		'Cookie' : 'cp2=0',
-		'Host' : 'www.sportgiochi365.com'
+		//'Host' : 'www.sportgiochi365.com'
 		//'accept-encoding' : 'gzip,deflate,sdch',
 	};
 
 	this.options = {
-		hostname: '127.0.0.1',//www.italiabet365.com','www.sportgiochi365.com'
-		port: 8888,
+		hostname: 'www.sportgiochi365.com',//www.italiabet365.com','www.sportgiochi365.com'
+		port: 80,
 		path: '/bg/',
 		method: 'GET',
 		headers: this.headers
