@@ -1,39 +1,25 @@
 var http = require('http');
 var cheerio = require('cheerio');
-var Connector = require('./connector');
 var moment = require('moment');
 var F = require('./fixture');
-
 var fixturesApi = new F();
-//http://www.xscores.com/soccer/Results.jsp?sport=1&countryName=ENGLAND&leagueCup=L&leagueName=PREMIER+LEAGUE&seasonName=2012%2F2013&sortBy=P&round=100422&result=6
 
-function printFixtures(mat) {
-	for (var i=0; i<mat.length; i++) {
-		console.log(mat[i].date);
-		for (var j=0; j<mat[i].fixtures.length; j++) {
-			console.log(mat[i].fixtures[j]);
-		}
-	}
-}
-
-
-var cn = new Connector({
-	host: 'localhost',
-	user: 'root',
-	password: '@bcd!234',
-	database: 'martingale'
-});
-
-var options = {
+/*var options = {
   hostname: 'www.xscores.com',
   port: 80,
   path: '/soccer/Results.jsp?sport=1&countryName=FRANCE&leagueName=LIGUE+2&sortBy=P&seasonName=2013%2F2014&month=1&result=3',
   method: 'GET'
-};
-var fixtures = [];
+};*/
 
-var req = http.request(options, function(res) {
+function XScores(options) {
+	this.options = options;
+	this.fixtures = [];
+}
+
+
+XScores.prototype.read = function(res) {
 	var data = [];
+	var self = this;
 	
 	res.on('data', function (chunk) {
 		data.push(new Buffer(chunk));
@@ -70,7 +56,7 @@ var req = http.request(options, function(res) {
 		for (var k=0; k<matchData.length; k++) {
 			if (typeof matchData[k] === 'string') {
 				if (o !== undefined) {
-					fixtures.push(o);
+					self.fixtures.push(o);
 				}
 				o = {};
 				o.date = matchData[k];
@@ -79,22 +65,22 @@ var req = http.request(options, function(res) {
 				o.fixtures.push(matchData[k]);
 			}
 		}
-		fixtures.push(o);
+		self.fixtures.push(o);
 
 		var counter = {};
 		counter.val = 0;
 
 		
-		for (var i=0; i<fixtures.length; i++) {
+		for (var i=0; i<self.fixtures.length; i++) {
 			
-			for (var j=0; j<fixtures[i].fixtures.length; j++) {
-				console.log(fixtures[i].fixtures[j][3] + '  ' + fixtures[i].date + '  ' + fixtures[i].fixtures[j][4] + '  ' + fixtures[i].fixtures[j][7] + '  ' + fixtures[i].fixtures[j][10]);
+			for (var j=0; j<self.fixtures[i].fixtures.length; j++) {
+				console.log(self.fixtures[i].fixtures[j][3] + '  ' + self.fixtures[i].date + '  ' + self.fixtures[i].fixtures[j][4] + '  ' + self.fixtures[i].fixtures[j][7] + '  ' + self.fixtures[i].fixtures[j][10]);
 				var input = {};
-				input.DIVISION = fixtures[i].fixtures[j][3];
-				input.MATCH_DATE = moment(fixtures[i].date, 'YYYY-MM-DD').format("YYYY-MM-DD");
-				input.HOME_TEAM = fixtures[i].fixtures[j][4];
-				input.AWAY_TEAM = fixtures[i].fixtures[j][7];
-				var goals = fixtures[i].fixtures[j][11].split('-');
+				input.DIVISION = self.fixtures[i].fixtures[j][3];
+				input.MATCH_DATE = moment(self.fixtures[i].date, 'YYYY-MM-DD').format("YYYY-MM-DD");
+				input.HOME_TEAM = self.fixtures[i].fixtures[j][4];
+				input.AWAY_TEAM = self.fixtures[i].fixtures[j][7];
+				var goals = self.fixtures[i].fixtures[j][11].split('-');
 				if (goals.length === 2 && goals[0].length > 0 && goals[1].length > 0) {
 					input.FT_HOME_GOALS = goals[0];
 					input.FT_AWAY_GOALS = goals[1];
@@ -106,12 +92,12 @@ var req = http.request(options, function(res) {
 						input.FT_RESULT = 'D';
 					}
 
-					input.STATUS = 'Fin';	
+					input.STATUS = 'Fin';
 				} else {
 					input.FT_HOME_GOALS = '-1';
 					input.FT_AWAY_GOALS = '-1';
 					input.FT_RESULT = 'x';
-					input.STATUS = 'Sched';	
+					input.STATUS = 'Sched';
 				}
 				
 				counter.val += 1;
@@ -126,10 +112,19 @@ var req = http.request(options, function(res) {
 		}
 
 	});
-});
+};
 
-req.on('error', function(e) {
-  console.log('problem with request: ' + e.message);
-});
+XScores.prototype.makeRequest = function() {
+	var self = this;
+	var req = http.request(this.options, function(res) {
+		XScores.prototype.read.call(self, res);
+	});
 
-req.end();
+	req.on('error', function(e) {
+		console.log('problem with request: ' + e.message);
+	});
+
+	req.end();
+};
+
+module.exports = XScores;
