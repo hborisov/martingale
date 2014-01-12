@@ -315,6 +315,7 @@
               var row = {};
               row.id = data[i].ID;
               row.div = data[i].DIVISION;
+              row.divFormat = "<img src='img/" + row.div + ".gif' />&nbsp;&nbsp;{0}";
               row.matchDate = data[i].MATCH_DATE;
               row.homeTeam = data[i].HOME_TEAM;
               row.awayTeam = data[i].AWAY_TEAM;
@@ -410,7 +411,7 @@
                         } else if (sequenceRow.result === 'LOSE') {
                           resultClass = 'red';
                         }
-                        sequenceRow.resultFormat = "<div class='" + resultClass + "'>{0}</div>";//" + weightClass + "
+                        sequenceRow.resultFormat = "<div class='" + resultClass + "'>{0}</div>";
                       }
                     }
 
@@ -441,6 +442,10 @@
       var drawsRows = [];
       $.get('api/draws', function(drawsData) {
           drawsRows = drawsData;
+          for (var i=0; i<drawsRows.length; i++) {
+            drawsRows[i].divisionFormat = "<img src='img/" + drawsRows[i].division + ".gif' />&nbsp;&nbsp;{0}";  
+          }
+          
           drawsTable.setData({cols: drawsCols, rows: drawsRows});
       });
 
