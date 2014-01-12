@@ -9,9 +9,6 @@ var Bet365Client = require('./bet365client');
 
 var fixtures = new F();
 var se = new S();
-/*se.load(function() {
-	console.log('sequences loaded.');
-});*/
 var bets = new B();
 var mg = new M();
 
