@@ -11,13 +11,12 @@ var fixturesApi = new F();
   method: 'GET'
 };*/
 
-function XScores(options) {
-	this.options = options;
+function XScores() {
 	this.fixtures = [];
 }
 
 
-XScores.prototype.read = function(res) {
+XScores.prototype.read = function(res, cb) {
 	var data = [];
 	var self = this;
 	
@@ -70,54 +69,56 @@ XScores.prototype.read = function(res) {
 		var counter = {};
 		counter.val = 0;
 
-		
 		for (var i=0; i<self.fixtures.length; i++) {
-			
-			for (var j=0; j<self.fixtures[i].fixtures.length; j++) {
-				console.log(self.fixtures[i].fixtures[j][3] + '  ' + self.fixtures[i].date + '  ' + self.fixtures[i].fixtures[j][4] + '  ' + self.fixtures[i].fixtures[j][7] + '  ' + self.fixtures[i].fixtures[j][10]);
-				var input = {};
-				input.DIVISION = self.fixtures[i].fixtures[j][3];
-				input.MATCH_DATE = moment(self.fixtures[i].date, 'YYYY-MM-DD').format("YYYY-MM-DD");
-				input.HOME_TEAM = self.fixtures[i].fixtures[j][4];
-				input.AWAY_TEAM = self.fixtures[i].fixtures[j][7];
-				var goals = self.fixtures[i].fixtures[j][11].split('-');
-				if (goals.length === 2 && goals[0].length > 0 && goals[1].length > 0) {
-					input.FT_HOME_GOALS = goals[0];
-					input.FT_AWAY_GOALS = goals[1];
-					if (parseInt(goals[0], 10) > parseInt(goals[1], 10)) {
-						input.FT_RESULT = 'H';
-					} else if (parseInt(goals[0], 10) < parseInt(goals[1], 10)) {
-						input.FT_RESULT = 'A';
+
+			if (self.fixtures[i] !== undefined && self.fixtures[i].fixtures !== undefined) {
+				for (var j=0; j<self.fixtures[i].fixtures.length; j++) {
+					console.log(self.fixtures[i].fixtures[j][3] + '  ' + self.fixtures[i].date + '  ' + self.fixtures[i].fixtures[j][4] + '  ' + self.fixtures[i].fixtures[j][7] + '  ' + self.fixtures[i].fixtures[j][10]);
+					var input = {};
+					input.DIVISION = self.fixtures[i].fixtures[j][3];
+					input.MATCH_DATE = moment(self.fixtures[i].date, 'YYYY-MM-DD').format("YYYY-MM-DD");
+					input.HOME_TEAM = self.fixtures[i].fixtures[j][4];
+					input.AWAY_TEAM = self.fixtures[i].fixtures[j][7];
+					var goals = self.fixtures[i].fixtures[j][11].split('-');
+					if (goals.length === 2 && goals[0].length > 0 && goals[1].length > 0) {
+						input.FT_HOME_GOALS = goals[0];
+						input.FT_AWAY_GOALS = goals[1];
+						if (parseInt(goals[0], 10) > parseInt(goals[1], 10)) {
+							input.FT_RESULT = 'H';
+						} else if (parseInt(goals[0], 10) < parseInt(goals[1], 10)) {
+							input.FT_RESULT = 'A';
+						} else {
+							input.FT_RESULT = 'D';
+						}
+
+						input.STATUS = 'Fin';
 					} else {
-						input.FT_RESULT = 'D';
+						input.FT_HOME_GOALS = '-1';
+						input.FT_AWAY_GOALS = '-1';
+						input.FT_RESULT = 'x';
+						input.STATUS = 'Sched';
 					}
+					
+					counter.val += 1;
+					fixturesApi.addUpdateFixture(input, counter, function(cnt) {
+						cnt.val -= 1;
+						if(cnt.val === 0) {
+							cb();
+						}
+					});
 
-					input.STATUS = 'Fin';
-				} else {
-					input.FT_HOME_GOALS = '-1';
-					input.FT_AWAY_GOALS = '-1';
-					input.FT_RESULT = 'x';
-					input.STATUS = 'Sched';
 				}
-				
-				counter.val += 1;
-				fixturesApi.addUpdateFixture(input, counter, function(cnt) {
-					cnt.val -= 1;
-					if(cnt.val === 0) {
-						process.exit();
-					}
-				});
-
 			}
 		}
 
+		console.log();
 	});
 };
 
-XScores.prototype.makeRequest = function() {
+XScores.prototype.makeRequest = function(options, cb) {
 	var self = this;
-	var req = http.request(this.options, function(res) {
-		XScores.prototype.read.call(self, res);
+	var req = http.request(options, function(res) {
+		XScores.prototype.read.call(self, res, cb);
 	});
 
 	req.on('error', function(e) {

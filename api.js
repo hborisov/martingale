@@ -3,6 +3,8 @@ var F = require('./fixture');
 var S = require('./sequence.js');
 var B = require('./bet');
 var M = require('./martin_gale_strategy');
+var X = require('./read_xscores_results');
+
 var Bet365Client = require('./bet365client');
 
 var fixtures = new F();
@@ -88,6 +90,41 @@ app.get('/api/odds/:league', function(req, res) {
 	bc.getOdds(function(odds) {
 		res.json(odds);
 	});
+});
+
+	
+app.post('/internal/fixtures', function(req, res) {
+	var leagues = [['FRANCE', 'LIGUE+1'],
+					['FRANCE', 'LIGUE+2'],
+					['ENGLAND', 'PREMIER+LEAGUE'],
+					['ENGLAND', 'CHAMPIONSHIP'],
+					['GERMANY', 'BUNDESLIGA'],
+					['GERMANY', '2.+BUNDESLIGA'],
+					['ITALY', 'SERIE+A'],
+					['ITALY', 'SERIE+B']];
+
+	var options = {
+		hostname: 'www.xscores.com',
+		port: 80,
+		method: 'GET'
+	};
+
+	var xscores = {};
+	var count = {};
+	count.i = leagues.length;
+	var month = req.body.month || '1';
+	var seasonName = req.body.seasonName || '2013%2F2014';
+	for (var i=0; i<count.i; i++) {
+		options.path = '/soccer/Results.jsp?sport=1&countryName='+ leagues[i][0] +'&leagueName='+ leagues[i][1] +'&sortBy=P&seasonName='+ seasonName +'&month='+ month +'&result=3';
+		xscores = new X();
+		xscores.makeRequest(options, function() {
+		count.i--;
+		
+		if(count.i === 1) {
+			res.json({status: 'success'});
+		}
+	});
+	}
 });
 
 app.listen(process.env.PORT || 8080);
