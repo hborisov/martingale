@@ -20,14 +20,14 @@ function Bet365Client(league) {
 		'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36',
 		'Accept-Language' : 'bg,en-GB;q=0.8,en;q=0.6',
 		'Cookie' : 'cp2=0',
-		//'Host' : 'www.sportgiochi365.com'
+		'Host' : 'www.sportgiochi365.com'
 		//'accept-encoding' : 'gzip,deflate,sdch',
 	};
 
 	this.options = {
-		hostname: 'www.sportgiochi365.com',//www.italiabet365.com','www.sportgiochi365.com'
-		port: 80,
-		path: '/bg/',
+		hostname: '192.168.1.110',//'www.sportgiochi365.com',//www.italiabet365.com','www.sportgiochi365.com'
+		port: 8888,
+		path: 'http://www.sportgiochi365.com/bg/',
 		method: 'GET',
 		headers: this.headers
 	};
@@ -51,8 +51,6 @@ Bet365Client.prototype.getOdds = function(cb) {
 			}
 		],
 		function (err, oddsResult) {
-			//console.log(caption);
-			//process.exit();
 			cb(oddsResult);
 		}
 	);
@@ -83,7 +81,7 @@ Bet365Client.request1 = function(callback) {
 Bet365Client.request2 = function(callback) {
 	var self = this;
 	
-	this.options.path = '/home/?lng=19';
+	this.options.path = 'http://www.sportgiochi365.com/home/?lng=19';
 	this.headers.Host = 'www.sportgiochi365.com';//'www.italiabet365.com';
 	var cookies_concat = '';
 	for(var cks in this.cookies) {
@@ -118,7 +116,7 @@ Bet365Client.request3 = function(location, callback) {
 	
 	this.cb = Bet365Client.extractCB(location);
 
-	this.options.path = base;
+	this.options.path = location;
 	this.headers.Referer = 'http://www.sportgiochi365.com/bg/';//'http://www.italiabet365.com/bg/';
 	var cookies_concat = '';
 	for(var cks in this.cookies) {
@@ -148,7 +146,7 @@ Bet365Client.request3 = function(location, callback) {
 Bet365Client.request4 = function(callback) {
 	var self = this;
 
-	this.options.path = this.leaguePath;
+	this.options.path = 'http://www.sportgiochi365.com' + this.leaguePath;
 	this.headers.Referer = 'http://www.sportgiochi365.com/home/FlashGen4/WebConsoleApp.asp?lng=19&cb=' + this.cb;
 	cookies_concat = '';
 	this.cookies['session'] = this.cookies['session'] + '&pscp=' + this.leagueIdCookie;
