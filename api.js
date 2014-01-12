@@ -9,9 +9,9 @@ var Bet365Client = require('./bet365client');
 
 var fixtures = new F();
 var se = new S();
-se.load(function() {
+/*se.load(function() {
 	console.log('sequences loaded.');
-});
+});*/
 var bets = new B();
 var mg = new M();
 
@@ -23,11 +23,13 @@ app.configure(function() {
 });
 
 app.get('/api/sequence', function(req, res) {
-  /*res.type('application/json');
-  res.send('i am a beautiful butterfly');*/
-  se.getSequences(function(sequences) {
-	res.json(sequences);
-  });
+  se.load(function() {
+	console.log('sequences loaded.');
+		se.getSequences(function(sequences) {
+			res.json(sequences);
+		});
+	});
+  
 });
 
 app.post('/internal/sequence/:id/advance', function(req, res) {

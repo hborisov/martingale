@@ -387,7 +387,7 @@
                   sequenceRows.push(sequenceRow);
 
                   for (var j=0; j<sequenceData[i].steps.length; j++) {
-                    var fixtureId = sequenceData[i].steps[j].fixtureId;
+                    var fixtureId = parseInt(sequenceData[i].steps[j].fixtureId, 10);
                     for (var p=0; p<fixtureData.length; p++) {
                       if (fixtureData[p].ID === fixtureId) {
                         var fixture = fixtureData[p];

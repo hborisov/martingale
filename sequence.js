@@ -96,6 +96,7 @@ SequenceApi.prototype.iterator = function(item, callback) {
 };
 
 SequenceApi.prototype.load = function(cb) {
+	this.sequences = [];
 	var self = this;
 	connectionApi.selectAllSequences(function(rows) {
 		async.each(rows, SequenceApi.prototype.iterator.bind(self), function(err) {

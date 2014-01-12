@@ -16,6 +16,10 @@ function MartinGaleStrategy() {
 }
 
 MartinGaleStrategy.prototype.load = function (cb) {
+	this.matches = [];
+	this.teamResults = [];
+	this.teams = {};
+	this.loaded = false;
 	this.connection.selectAllMatches((function(rows) {
 		rows.forEach((function(element, index, array) {
 			this.matches.push(element);
