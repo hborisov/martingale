@@ -25,7 +25,7 @@ function Bet365Client(league) {
 	};
 
 	this.options = {
-		hostname: '192.168.1.110',//'www.sportgiochi365.com',//www.italiabet365.com','www.sportgiochi365.com'
+		hostname: '95.43.96.55',//'www.sportgiochi365.com',//www.italiabet365.com','www.sportgiochi365.com'
 		port: 8888,
 		path: 'http://www.sportgiochi365.com/bg/',
 		method: 'GET',
