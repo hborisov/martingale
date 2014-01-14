@@ -7,9 +7,11 @@ if (process.argv[2] === undefined) {
 	console.log('--------------');
 } else {
 	var league = process.argv[2];
-	var bc = new Bet365Client(league);
+	var bc = new Bet365Client();
+	bc.reset(league);
 	bc.getOdds(function(odds) {
 		console.log(odds);
+		process.exit();
 	});
 }
 

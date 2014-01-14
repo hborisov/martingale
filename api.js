@@ -85,7 +85,9 @@ app.get('/api/draws', function(req, res) {
 });
 
 app.get('/api/odds/:league', function(req, res) {
-	var bc = new Bet365Client(req.params.league);
+	var bc = new Bet365Client();
+
+	bc.reset(req.params.league);
 	bc.getOdds(function(odds) {
 		res.json(odds);
 	});
