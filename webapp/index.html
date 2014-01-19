@@ -88,6 +88,10 @@
             <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
             </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><button id="refreshButton" type="button" class="btn btn-info">refresh</button></li>
+            </ul>
+          </form>
           </div><!--/.nav-collapse -->
         </div>
       </div>
@@ -126,6 +130,12 @@
      <!--<script src="/static/datepicker/bootstrap-datepicker.js" type="text/javascript" charset="utf-8"></script>-->
     <script type="text/javascript">
       $(document).ready( function() {
+        $('#refreshButton').on('click', function(e) {
+          $.post('internal/fixtures', function(data) {
+            alert('Data updated!');
+          });
+        });
+
         $('#myModal').on('show.bs.modal', function (e) {
             // do something...\
             //alert(window.modalData);
