@@ -66,7 +66,7 @@ SequenceApi.prototype.saveStepToDB = function(step, cb) {
 };
 
 SequenceApi.prototype.iterator = function(item, callback) {
-	for (var j=0; j<this.sequences.length; j++) {
+	/*for (var j=0; j<this.sequences.length; j++) {
 		if (this.sequences[j].id === item.APP_ID && item.STATUS === 'FINISHED') {
 			this.sequences.splice(j, 1);
 			callback(null);
@@ -75,10 +75,10 @@ SequenceApi.prototype.iterator = function(item, callback) {
 			callback(null);
 			return;
 		}
-	}
+	}*/
 
 	var sequence = new Sequence(item.FIXTURE_ID, item.TEAM, item.APP_ID, item.CURRENT_STEP, item.STATUS, moment(item.DATE_STARTED).format('YYYY-MM-DD'));
-	if (sequence.status === 'RUNNING') {
+	//if (sequence.status === 'RUNNING') {
 
 		var self = this;
 		connectionApi.selectStepsForSequence(item.APP_ID, function(steps) {
@@ -90,9 +90,9 @@ SequenceApi.prototype.iterator = function(item, callback) {
 
 			callback(null);
 		});
-	} else {
-		callback(null);
-	}
+	//} else {
+	//	callback(null);
+	//}
 };
 
 SequenceApi.prototype.load = function(cb) {
@@ -122,7 +122,7 @@ SequenceApi.prototype.next = function(sequenceId, cb) {
 	var sequence;
 	for (var i=0; i<this.sequences.length; i++) {
 		console.log(this.sequences[i].id);
-		if (this.sequences[i].id === sequenceId) {
+		if (this.sequences[i].id === sequenceId && this.sequences[i].status === 'RUNNING') {
 			sequence = this.sequences[i];
 			break;
 		}
