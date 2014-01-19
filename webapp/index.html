@@ -156,7 +156,7 @@
         $('#myModal').on('show.bs.modal', function (e) {
             // do something...\
             //alert(window.modalData);
-            $('#fixtureId').val(window.modalData.id);
+            $('#fixtureId').val(window.modalData.fixtureId);
             $('#homeTeam').val(window.modalData.homeTeam);
             $('#awayTeam').val(window.modalData.awayTeam);
         });
@@ -205,22 +205,14 @@
                 }
             },
             rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
-                console.log('row clicked');   //data.event holds the original jQuery event.
-                console.log(data);            //data.row holds the underlying row you supplied.
-                                              //data.column holds the underlying column you supplied.
-                                              //data.checked is true if row is checked.
-                                              //'this' keyword holds the clicked element.
-                 window.modalData = data.row;                             
+                data.event.preventDefault();
+                window.modalData = data.row;                             
                 $('#myModal').modal();
-                if ( $(this).hasClass('userId') ) {
-                  data.event.preventDefault();
-                  alert('You clicked userId: ' + data.row.userId);
-                }
             }
         }).data('WATable');
 
       var sequenceTable = $('#sequence-table').WATable({
-             pageSize: 15,                //Sets the initial pagesize
+            pageSize: 15,                //Sets the initial pagesize
             filter: true,               //Show filter fields
             columnPicker: true,         //Show the columnPicker button
             pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
@@ -250,10 +242,9 @@
                                               //data.column holds the underlying column you supplied.
                                               //data.checked is true if row is checked.
                                               //'this' keyword holds the clicked element.
-                if ( $(this).hasClass('userId') ) {
-                  data.event.preventDefault();
-                  alert('You clicked userId: ' + data.row.userId);
-                }
+                data.event.preventDefault();
+                window.modalData = data.row;                             
+                $('#myModal').modal();
             }
         }).data('WATable');
 
@@ -296,7 +287,7 @@
         }).data('WATable');
 
           var fixtureCols = {
-              id: {
+              fixtureId: {
                 index: 1,
                 type: "number",
                 unique: true
@@ -340,7 +331,7 @@
           $.get('api/fixture', function(data) {
             for (var i=0; i<data.length; i++) {
               var row = {};
-              row.id = data[i].ID;
+              row.fixtureId = data[i].ID;
               row.div = data[i].DIVISION;
               row.divFormat = "<img src='img/" + row.div + ".gif' />&nbsp;&nbsp;{0}";
               row.matchDate = data[i].MATCH_DATE;
@@ -379,24 +370,28 @@
                     index: 4,
                     type: "date"
                   },
-                  homeTeam: {
+                  fixtureId: {
                     index: 5,
-                    type: "string"
+                    type: "number"
                   },
-                  awayTeam: {
+                  homeTeam: {
                     index: 6,
                     type: "string"
                   },
-                  amount: {
+                  awayTeam: {
                     index: 7,
-                    type: "number"
+                    type: "string"
                   },
-                  odd: {
+                  amount: {
                     index: 8,
                     type: "number"
                   },
-                  result: {
+                  odd: {
                     index: 9,
+                    type: "number"
+                  },
+                  result: {
+                    index: 10,
                     type: "string"
                   }
                 };
@@ -424,6 +419,7 @@
                     }
 
                     sequenceRow = {};
+                    sequenceRow.fixtureId = fixture.ID;
                     sequenceRow.homeTeam = fixture.HOME_TEAM;
                     sequenceRow.awayTeam = fixture.AWAY_TEAM;
 
