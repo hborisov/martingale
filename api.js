@@ -192,4 +192,25 @@ app.post('/internal/fixtures', function(req, res) {
 	}
 });
 
+app.get('/api/money', function(req, res) {
+	var money = {};
+	money.inplay = 0;
+	money.profit = 0;
+	bets.readBets(function(bets) {
+		for (var i=0; i<bets.length; i++) {
+			var profit = bets[i].ODD * bets[i].AMOUNT;
+			if (bets[i].RESULT === 'PENDING') {
+				money.inplay += profit;
+			} else if (bets[i].RESULT === 'WIN') {
+				money.profit += profit;
+			} else if (bets[i].RESULT === 'LOSE') {
+				money.profit -= profit;
+			}
+		}
+
+		res.json(money);
+	});
+});
+
+
 app.listen(process.env.PORT || 8080);
