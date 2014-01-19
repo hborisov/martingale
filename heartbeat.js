@@ -25,6 +25,8 @@ function iterator(item, callback) {
 					console.log('nothing to update');
 					callback(null);
 				}
+		} else {
+			callback(null);
 		}
 	});
 
@@ -57,7 +59,7 @@ var leagues = [['FRANCE', 'LIGUE+1'],
 			count.i--;
 			
 			if(count.i === 1) {
-				//res.json({status: 'success'});
+				console.log('start reading bets');
 				b.readPendingBets(function(pendingBets) {
 					async.each(pendingBets, iterator, function(err) {
 						if (err) {
