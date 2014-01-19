@@ -119,12 +119,12 @@ app.post('/internal/fixtures', function(req, res) {
 		options.path = '/soccer/Results.jsp?sport=1&countryName='+ leagues[i][0] +'&leagueName='+ leagues[i][1] +'&sortBy=P&seasonName='+ seasonName +'&month='+ month +'&result=3';
 		xscores = new X();
 		xscores.makeRequest(options, function() {
-		count.i--;
-		
-		if(count.i === 1) {
-			res.json({status: 'success'});
-		}
-	});
+			count.i--;
+			
+			if(count.i === 1) {
+				res.json({status: 'success'});
+			}
+		});
 	}
 });
 
