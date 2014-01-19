@@ -22,6 +22,16 @@
           left: 10px;
           top: 10px;
         }
+
+        .profitPositive {
+          color: #00ff00;
+        }
+        .profitNegative {
+          color: #ff0000;
+        }
+        .whiteText {
+          color: #ffffff;
+        }
     </style>
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -100,8 +110,11 @@
               <li><button id="refreshDataButton" type="button" class="btn btn-info">1. Get Data</button></li>
               <li><button id="refreshSequencesButton" type="button" class="btn btn-info">2. Update Sequences</button></li>
             </ul>
-          </form>
           </div><!--/.nav-collapse -->
+          <div>
+            <span id="inplayContainer" class="whiteText"></span>
+            <span id="profitContainer"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -144,6 +157,18 @@
           $.post('internal/fixtures', function(data) {
             $('#loading-indicator').hide();
           });
+        });
+
+        $.get('api/money', function(data) {
+          $('#inplayContainer').text('Inplay: ' + data.inplay);
+          $('#profitContainer').text('Profit: ' + data.profit);
+
+          if (data.profit >= 0) {
+            $('#profitContainer').attr('class', 'profitPositive');
+          } else if (data.profit < 0) {
+            $('#profitContainer').attr('class', 'profitNegative');
+          }
+          
         });
 
         $('#refreshSequencesButton').on('click', function(e) {
