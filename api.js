@@ -38,6 +38,12 @@ function iterator(item, callback) {
 	});
 }
 
+function sequenceIterator(sequence, callback) {
+	se.next(sequence.id, function() {
+		callback(null);
+	});
+}
+
 var app = express();
 
 app.configure(function() {
@@ -59,6 +65,22 @@ app.post('/internal/sequence/:id/advance', function(req, res) {
 	se.next(req.params.id, function() {
 		res.json({status: 'success'});
 	});
+});
+
+app.post('/internal/sequence/advance', function(req, res) {
+	se.load(function() {
+		se.getSequences(function(sequences) {
+
+			async.each(sequences, sequenceIterator, function(err) {
+				if (err) {
+					throw err;
+				}
+
+				res.json({status: 'success'});
+			});
+		});
+	});
+	
 });
 
 app.post('/api/sequence', function(req, res) {

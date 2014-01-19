@@ -89,7 +89,8 @@
               <li class="active"><a href="#">Home</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><button id="refreshButton" type="button" class="btn btn-info">refresh</button></li>
+              <li><button id="refreshDataButton" type="button" class="btn btn-info">1. Get Data</button></li>
+              <li><button id="refreshSequencesButton" type="button" class="btn btn-info">2. Update Sequences</button></li>
             </ul>
           </form>
           </div><!--/.nav-collapse -->
@@ -130,9 +131,15 @@
      <!--<script src="/static/datepicker/bootstrap-datepicker.js" type="text/javascript" charset="utf-8"></script>-->
     <script type="text/javascript">
       $(document).ready( function() {
-        $('#refreshButton').on('click', function(e) {
+        $('#refreshDataButton').on('click', function(e) {
           $.post('internal/fixtures', function(data) {
             alert('Data updated!');
+          });
+        });
+
+        $('#refreshSequencesButton').on('click', function(e) {
+          $.post('internal/sequence/advance', function(data) {
+            alert('Sequences updated!');
           });
         });
 
