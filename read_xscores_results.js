@@ -73,7 +73,7 @@ XScores.prototype.read = function(res, cb) {
 
 			if (self.fixtures[i] !== undefined && self.fixtures[i].fixtures !== undefined) {
 				for (var j=0; j<self.fixtures[i].fixtures.length; j++) {
-					console.log(self.fixtures[i].fixtures[j][3] + '  ' + self.fixtures[i].date + '  ' + self.fixtures[i].fixtures[j][4] + '  ' + self.fixtures[i].fixtures[j][7] + '  ' + self.fixtures[i].fixtures[j][10]);
+					console.log(self.fixtures[i].fixtures[j][1] + '  ' + self.fixtures[i].fixtures[j][3] + '  ' + self.fixtures[i].date + '  ' + self.fixtures[i].fixtures[j][4] + '  ' + self.fixtures[i].fixtures[j][7] + '  ' + self.fixtures[i].fixtures[j][10]);
 					var input = {};
 					input.DIVISION = self.fixtures[i].fixtures[j][3];
 					input.MATCH_DATE = moment(self.fixtures[i].date, 'YYYY-MM-DD').format("YYYY-MM-DD");
@@ -91,7 +91,7 @@ XScores.prototype.read = function(res, cb) {
 							input.FT_RESULT = 'D';
 						}
 
-						input.STATUS = 'Fin';
+						input.STATUS = self.fixtures[i].fixtures[j][1];
 					} else {
 						input.FT_HOME_GOALS = '-1';
 						input.FT_AWAY_GOALS = '-1';
