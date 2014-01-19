@@ -16,6 +16,12 @@
     <link rel='stylesheet' href='css/watable.css'/>
     <style type="text/css">
         body { padding: 30px; font-size: 12px }
+       
+        #loading-indicator {
+          position: absolute;
+          left: 10px;
+          top: 10px;
+        }
     </style>
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -83,7 +89,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="#">MartinGale</a>
+          <a class="brand" href="#">MartinGale
+            <img src="img/ajax-loader.gif" id="loading-indicator" style="display:none" />
+          </a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
@@ -132,14 +140,16 @@
     <script type="text/javascript">
       $(document).ready( function() {
         $('#refreshDataButton').on('click', function(e) {
+          $('#loading-indicator').show();
           $.post('internal/fixtures', function(data) {
-            alert('Data updated!');
+            $('#loading-indicator').hide();
           });
         });
 
         $('#refreshSequencesButton').on('click', function(e) {
+          $('#loading-indicator').show();
           $.post('internal/sequence/advance', function(data) {
-            alert('Sequences updated!');
+            $('#loading-indicator').hide();
           });
         });
 

@@ -121,7 +121,6 @@ SequenceApi.prototype.next = function(sequenceId, cb) {
 	//if not draw start next step: add new fixture into step
 	var sequence;
 	for (var i=0; i<this.sequences.length; i++) {
-		console.log(this.sequences[i].id);
 		if (this.sequences[i].id === sequenceId && this.sequences[i].status === 'RUNNING') {
 			sequence = this.sequences[i];
 			break;
