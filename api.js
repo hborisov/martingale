@@ -4,6 +4,7 @@ var S = require('./sequence.js');
 var B = require('./bet');
 var M = require('./martin_gale_strategy');
 var X = require('./read_xscores_results');
+var async = require('async');
 
 var Bet365Client = require('./bet365client');
 
@@ -11,6 +12,31 @@ var fixtures = new F();
 var se = new S();
 var bets = new B();
 var mg = new M();
+
+function iterator(item, callback) {
+	fixtures.readFixture(item.FIXTURE_ID.toString(), function(rows) {
+		if (rows.length === 1) {
+			if (rows[0].STATUS === 'Fin') {
+					if (item.BET === rows[0].FT_RESULT) {
+						bets.updateBet(item.ID.toString(), 'WIN', function(changedRows) {
+							console.log('Bet wins');
+							callback(null);
+						});
+					} else {
+						bets.updateBet(item.ID.toString(), 'LOSE', function(changedRows) {
+							console.log('Bet loses');
+							callback(null);
+						});
+					}
+				} else {
+					console.log('nothing to update');
+					callback(null);
+				}
+		} else {
+			callback(null);
+		}
+	});
+}
 
 var app = express();
 
@@ -122,7 +148,16 @@ app.post('/internal/fixtures', function(req, res) {
 			count.i--;
 			
 			if(count.i === 1) {
-				res.json({status: 'success'});
+				console.log('start reading bets');
+				bets.readPendingBets(function(pendingBets) {
+					async.each(pendingBets, iterator, function(err) {
+						if (err) {
+							throw err;
+						}
+
+						res.json({status: 'success'});
+					});
+				});
 			}
 		});
 	}
