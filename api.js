@@ -5,6 +5,7 @@ var B = require('./bet');
 var M = require('./martin_gale_strategy');
 var X = require('./read_xscores_results');
 var async = require('async');
+var moment = require('moment');
 
 var Bet365Client = require('./bet365client');
 
@@ -92,6 +93,12 @@ app.post('/api/sequence', function(req, res) {
 app.get('/api/fixture', function(req, res) {
 	fixtures.readFixtures(function(fixtures){
 		res.json(fixtures);
+	});
+});
+
+app.get('/api/fixture/next', function(req, res) {
+	fixtures.readNextFixture(req.query.teamName, moment().format('YYYY-MM-DD'), function(fixture) {
+		res.json(fixture);
 	});
 });
 

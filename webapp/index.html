@@ -154,23 +154,14 @@
         });
 
         $('#myModal').on('show.bs.modal', function (e) {
-            // do something...\
-            //alert(window.modalData);
             $('#fixtureId').val(window.modalData.fixtureId);
             $('#homeTeam').val(window.modalData.homeTeam);
             $('#awayTeam').val(window.modalData.awayTeam);
+            $('#teamName').val(window.modalData.teamName);
         });
 
         $('#modalSubmit').on('click', function(e) {
           var data = $("#start-sequence-form").serialize();
-          /*console.log(data);
-          $.ajax({
-            type: "POST",
-            url: 'api/bet',
-            data: data,
-            success: function() {alert('cccc');},
-            dataType: 'text'
-          });*/
           $.post('api/bet', data, function(response) {
             $.post('api/sequence', data, function(response2) {
               console.log('bet and sequence created');
@@ -279,10 +270,17 @@
                                               //data.column holds the underlying column you supplied.
                                               //data.checked is true if row is checked.
                                               //'this' keyword holds the clicked element.
-                if ( $(this).hasClass('userId') ) {
-                  data.event.preventDefault();
-                  alert('You clicked userId: ' + data.row.userId);
-                }
+                data.event.preventDefault();
+                $.get('api/fixture/next', {teamName: data.row.teamName}, function(response) {
+                  var row = {};
+                  row.fixtureId = response.ID;
+                  row.homeTeam = response.HOME_TEAM;
+                  row.awayTeam = response.AWAY_TEAM;
+                  row.teamName = data.row.teamName;
+                  window.modalData = row;                             
+                  $('#myModal').modal();
+                });
+                
             }
         }).data('WATable');
 
@@ -455,7 +453,8 @@
       var drawsCols = {
           teamName: {
             index: 1,
-            type: "string"
+            type: "string",
+            unique: true
           },
           division: {
             index: 2,
