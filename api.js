@@ -204,7 +204,7 @@ app.get('/api/money', function(req, res) {
 			} else if (bets[i].RESULT === 'WIN') {
 				money.profit += profit;
 			} else if (bets[i].RESULT === 'LOSE') {
-				money.profit -= profit;
+				money.profit -= bets[i].AMOUNT;
 			}
 		}
 
