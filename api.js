@@ -208,6 +208,8 @@ app.get('/api/money', function(req, res) {
 			}
 		}
 
+		money.inplay = money.inplay.toFixed(2);
+		money.profit = money.profit.toFixed(2);
 		res.json(money);
 	});
 });
