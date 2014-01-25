@@ -181,7 +181,7 @@ app.post('/internal/fixtures', function(req, res) {
 				bets.readPendingBets(function(pendingBets) {
 					async.each(pendingBets, iterator, function(err) {
 						if (err) {
-							throw err;
+							res.json({status: 'failure', message: err});
 						}
 
 						res.json({status: 'success'});
