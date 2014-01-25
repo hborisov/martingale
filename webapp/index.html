@@ -398,24 +398,32 @@
                     type: "number",
                     hidden: true
                   },
-                  homeTeam: {
+                  division: {
                     index: 6,
                     type: "string"
                   },
-                  awayTeam: {
+                  fixtureDate: {
                     index: 7,
+                    type: "date"
+                  },
+                  homeTeam: {
+                    index: 8,
+                    type: "string"
+                  },
+                  awayTeam: {
+                    index: 9,
                     type: "string"
                   },
                   amount: {
-                    index: 8,
+                    index: 10,
                     type: "number"
                   },
                   odd: {
-                    index: 9,
+                    index: 11,
                     type: "number"
                   },
                   result: {
-                    index: 10,
+                    index: 12,
                     type: "string"
                   }
                 };
@@ -443,6 +451,9 @@
 
                     sequenceRow = {};
                     sequenceRow.fixtureId = fixture.ID;
+                    sequenceRow.division = fixture.DIVISION;
+                    sequenceRow.divisionFormat = "<img src='img/" + fixture.DIVISION + ".gif' />&nbsp;&nbsp;{0}";
+                    sequenceRow.fixtureDate = fixture.MATCH_DATE;
                     sequenceRow.homeTeam = fixture.HOME_TEAM;
                     sequenceRow.awayTeam = fixture.AWAY_TEAM;
                     if (sequenceData[i].team === fixture.HOME_TEAM) {
