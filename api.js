@@ -195,7 +195,7 @@ app.post('/internal/fixtures', function(req, res) {
 app.get('/api/money', function(req, res) {
 	var money = {};
 	money.inplay = 0;
-	money.profit = 0;
+	money.profit = 510.80;
 	bets.readBets(function(bets) {
 		for (var i=0; i<bets.length; i++) {
 			var profit = bets[i].ODD * bets[i].AMOUNT;
