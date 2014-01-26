@@ -384,64 +384,69 @@
           });
 
           var sequenceCols = {
-                  id: {
+                  internalId: {
                     index: 1,
-                    type: "string",
+                    type: "number",
                     unique: true,
                     hidden: true
                   },
-                  team: {
+                  id: {
                     index: 2,
+                    type: "string",
+                    hidden: true
+                  },
+                  team: {
+                    index: 3,
                     type: "string",
                     friendly: "Team"
                   },
                   status: {
-                    index: 3,
+                    index: 4,
                     type: "string",
                     friendly: "Sequence Status"
                   },
                   dateStarted: {
-                    index: 4,
+                    index: 5,
                     type: "date",
                     friendly: "Date Started"
                   },
                   fixtureId: {
-                    index: 5,
+                    index: 6,
                     type: "number",
                     hidden: true
                   },
                   division: {
-                    index: 6,
+                    index: 7,
                     type: "string",
                     friendly: "Division"
                   },
                   fixtureDate: {
-                    index: 7,
+                    index: 8,
                     type: "date",
                     friendly: "Fixture Date"
                   },
                   homeTeam: {
-                    index: 8,
+                    index: 9,
                     type: "string",
                     friendly: "Home Team"
                   },
                   awayTeam: {
-                    index: 9,
+                    index: 10,
                     type: "string",
                     friendly: "Away Team"
                   },
                   amount: {
-                    index: 10,
+                    index: 11,
                     type: "number",
                     friendly: "Amount Put"
                   },
                   odd: {
-                    index: 11,
+                    index: 12,
                     type: "number",
                     friendly: "Odd"
                   },
                   result: {
-                    index: 12,
+                    index: 13,
                     type: "string",
                     friendly: "Result"
                   }
@@ -451,9 +456,11 @@
           $.get('api/sequence', function(sequenceData) {
             $.get('api/fixture', function(fixtureData) {
               $.get('api/bet', function(betData) {
-                
+                var internalId = 0;
                 for (var i=0; i<sequenceData.length; i++) {
+                  internalId++;
                   var sequenceRow = {};
+                  sequenceRow.internalId = internalId;
                   sequenceRow.id = sequenceData[i].id;
                   sequenceRow.team = sequenceData[i].team;
                   sequenceRow.status = sequenceData[i].status;
@@ -468,7 +475,9 @@
                       }
                     }
 
+                    internalId++;
                     sequenceRow = {};
+                    sequenceRow.internalId = internalId;
                     sequenceRow.fixtureId = fixture.ID;
                     sequenceRow.division = fixture.DIVISION;
                     sequenceRow.divisionFormat = "<img src='img/" + fixture.DIVISION + ".gif' />&nbsp;&nbsp;{0}";
