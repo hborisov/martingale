@@ -260,6 +260,7 @@
             },
             rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
                 data.event.preventDefault();
+                console.log(data.row);
                 window.modalData = data.row;                             
                 $('#myModal').modal();
             }
