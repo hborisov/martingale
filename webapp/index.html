@@ -466,6 +466,11 @@
               $.get('api/bet', function(betData) {
                 var internalId = 0;
                 for (var i=0; i<sequenceData.length; i++) {
+
+                  if (sequenceData[i].status === 'FINISHED') {
+                    continue;
+                  }
+
                   internalId++;
                   var sequenceRow = {};
                   sequenceRow.internalId = internalId;
