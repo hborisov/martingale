@@ -168,7 +168,7 @@ app.post('/internal/fixtures', function(req, res) {
 	var xscores = {};
 	var count = {};
 	count.i = leagues.length;
-	var month = req.body.month || '2';
+	var month = req.body.month || '3';
 	var seasonName = req.body.seasonName || '2013%2F2014';
 	for (var i=0; i<count.i; i++) {
 		options.path = '/soccer/Results.jsp?sport=1&countryName='+ leagues[i][0] +'&leagueName='+ leagues[i][1] +'&sortBy=P&seasonName='+ seasonName +'&month='+ month +'&result=3';

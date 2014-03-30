@@ -149,7 +149,6 @@ SequenceApi.prototype.next = function(sequenceId, cb) {
 				sequence.finish(cb);
 			} else {
 				fixturesApi.readNextFixture(sequence.team, moment(rows[0].MATCH_DATE).format('YYYY-MM-DD'), function(fixture) {
-					console.log(fixture.ID);
 					console.log(sequence.steps[sequence.currentStep]);
 					Sequence.finishCurrentStep.call(sequence);
 					if (fixture !== undefined) {
