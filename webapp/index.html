@@ -130,6 +130,16 @@
     <div class="container">
       <div class="row ">
         <h1>Sequences</h1>
+        <div class="btn-group span10" data-toggle="buttons-radio">
+          <button id="pr-sequences" type="button" class="btn"><img src='img/PR.gif'/>&nbsp;PR</button>
+          <button id="ech-sequences" type="button" class="btn"><img src='img/ECH.gif'/>&nbsp;ECH</button>
+          <button id="bl-sequences" type="button" class="btn"><img src='img/BL.gif'/>&nbsp;BL 1</button>
+          <button id="2bl-sequences" type="button" class="btn"><img src='img/2BL.gif'/>&nbsp;BL 2</button>
+          <button id="l1-sequences" type="button" class="btn"><img src='img/L1.gif'/>&nbsp;L 1</button>
+          <button id="l2-sequences" type="button" class="btn"><img src='img/L2.gif'/>&nbsp;L 2</button>
+          <button id="a-sequences" type="button" class="btn"><img src='img/A.gif'/>&nbsp;SE A</button>
+          <button id="b-sequences" type="button" class="btn"><img src='img/B.gif'/>&nbsp;SE B</button>
+        </div>
         <div class="span10">
           <div id="sequence-table"></div>
         </div>
@@ -238,7 +248,7 @@
             fixtureTable.setData(enddata);
           });
 
-          var sequenceCols = {
+          window.sequenceCols = {
                   internalId: {
                     index: 1,
                     type: "number",
@@ -308,6 +318,16 @@
                 };
 
           var sequenceRows = [];
+          window.sequenceLeagues = {
+            'PR' : [],
+            'ECH' : [],
+            'L1' : [],
+            'L2' : [],
+            'A' : [],
+            'B' : [],
+            'BL' : [],
+            '2BL' : []
+          };
           $.get('api/sequence', function(sequenceData) {
             $.get('api/fixture', function(fixtureData) {
               $.get('api/bet', function(betData) {
@@ -319,13 +339,14 @@
                   }
 
                   internalId++;
-                  var sequenceRow = {};
-                  sequenceRow.internalId = internalId;
-                  sequenceRow.id = sequenceData[i].id;
-                  sequenceRow.team = sequenceData[i].team;
-                  sequenceRow.status = sequenceData[i].status;
-                  sequenceRow.dateStarted = sequenceData[i].dateStarted;
-                  sequenceRows.push(sequenceRow);
+                  var mainSequenceRow = {};
+                  mainSequenceRow.internalId = internalId;
+                  mainSequenceRow.id = sequenceData[i].id;
+                  mainSequenceRow.team = sequenceData[i].team;
+                  mainSequenceRow.status = sequenceData[i].status;
+                  mainSequenceRow.dateStarted = sequenceData[i].dateStarted;
+                  //sequenceRows.push(sequenceRow);
+                  var isSequencePushed = false;
 
                   for (var j=0; j<sequenceData[i].steps.length; j++) {
                     var fixtureId = parseInt(sequenceData[i].steps[j].fixtureId, 10);
@@ -336,7 +357,7 @@
                     }
 
                     internalId++;
-                    sequenceRow = {};
+                    var sequenceRow = {};
                     sequenceRow.internalId = internalId;
                     sequenceRow.fixtureId = fixture.ID;
                     sequenceRow.division = fixture.DIVISION;
@@ -366,11 +387,17 @@
                       }
                     }
 
-                    sequenceRows.push(sequenceRow);
+                    //sequenceRows.push(sequenceRow);
+                    if (!isSequencePushed) {
+                      sequenceLeagues[fixture.DIVISION].push(mainSequenceRow);
+                      isSequencePushed = true;
+                    }
+                    sequenceLeagues[fixture.DIVISION].push(sequenceRow);
+
                   }
                 }
 
-                sequenceTable.setData({cols: sequenceCols, rows: sequenceRows});
+                sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['PR']});
               });
             });
           });
@@ -467,6 +494,38 @@
           window.modalData = {};
           $('#myModal').modal('hide');
         }
+      });
+
+      $('#pr-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['PR']});
+      });
+
+      $('#ech-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['ECH']});
+      });
+
+      $('#l1-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['L1']});
+      });
+
+      $('#l2-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['L2']});
+      });
+
+      $('#a-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['A']});
+      });
+
+      $('#b-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['B']});
+      });
+
+      $('#bl-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['BL']});
+      });
+
+      $('#2bl-sequences').on('click', function(e) {
+        sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['2BL']});
       });
 
       window.fixtureTable = $('#fixture-table').WATable({
