@@ -161,178 +161,9 @@
       $form.find('input:text, input:password, input:file, select, textarea').val('');
       $form.find('input:radio, input:checkbox').removeAttr('checked').removeAttr('selected');
     }
-      $(document).ready( function() {
-        $('#refreshDataButton').on('click', function(e) {
-          $('#loading-indicator').show();
-          $.post('internal/fixtures', function(data) {
-            $('#loading-indicator').hide();
-          });
-        });
 
-        $.get('api/money', function(data) {
-          $('#inplayContainer').text('Inplay: ' + data.inplay);
-          $('#profitContainer').text('Profit: ' + data.profit);
-
-          if (data.profit >= 0) {
-            $('#profitContainer').attr('class', 'profitPositive');
-          } else if (data.profit < 0) {
-            $('#profitContainer').attr('class', 'profitNegative');
-          }
-          
-        });
-
-        $('#refreshSequencesButton').on('click', function(e) {
-          $('#loading-indicator').show();
-          $.post('internal/sequence/advance', function(data) {
-            $('#loading-indicator').hide();
-          });
-        });
-
-        $('#myModal').on('show', function (e) {
-            $('#fixtureId').val(window.modalData.fixtureId);
-            $('#homeTeam').val(window.modalData.homeTeam);
-            $('#awayTeam').val(window.modalData.awayTeam);
-            $('#teamName').val(window.modalData.teamName);
-        });
-
-        $('#myModal').on('hidden', function() {
-          resetForm($('#start-sequence-form'));
-        });
-
-        $('#modalSubmit').on('click', function(e) {
-
-          var data = $("#start-sequence-form").serialize();
-          if (window.modalData !== 'undefined' && window.modalData.submitType !== 'undefined') {
-            if (window.modalData.submitType === 'draw') {
-              $.post('api/bet', data, function(response) {
-                $.post('api/sequence', data, function(response2) {
-                  console.log('bet and sequence created');
-                  $('#myModal').modal('hide');
-                });
-              });
-            } else if (window.modalData.submitType === 'sequence') {
-               $.post('api/bet', data, function(response) {
-                console.log('bet placed');
-               });
-            }
-
-          window.modalData = {};
-          $('#myModal').modal('hide');
-        }
-      });
-
-        var fixtureTable = $('#fixture-table').WATable({
-            pageSize: 50,                //Sets the initial pagesize
-            filter: true,               //Show filter fields
-            columnPicker: true,         //Show the columnPicker button
-            pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
-            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
-            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
-            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
-            types: {                    //Following are some specific properties related to the data types
-                string: {
-                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
-                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
-                },
-                number: {
-                    decimals: 1   //Sets decimal precision for float types
-                },
-                bool: {
-                    //filterTooltip: false
-                },
-                date: {
-                  utc: true,            //Show time as universal time, ie without timezones.
-                  format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
-                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
-                }
-            },
-            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
-                data.event.preventDefault();
-                window.modalData = data.row;                             
-                $('#myModal').modal();
-            }
-        }).data('WATable');
-
-      var sequenceTable = $('#sequence-table').WATable({
-            pageSize: 50,                //Sets the initial pagesize
-            filter: true,               //Show filter fields
-            columnPicker: true,         //Show the columnPicker button
-            pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
-            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
-            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
-            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
-            types: {                    //Following are some specific properties related to the data types
-                string: {
-                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
-                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
-                },
-                number: {
-                    decimals: 1   //Sets decimal precision for float types
-                },
-                bool: {
-                    //filterTooltip: false
-                },
-                date: {
-                  utc: true,            //Show time as universal time, ie without timezones.
-                  format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
-                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
-                }
-            },
-            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
-                data.event.preventDefault();
-                console.log(data.row);
-                window.modalData = {};
-                window.modalData = data.row;
-                window.modalData.submitType = 'sequence';
-
-                $('#myModal').modal();
-            }
-        }).data('WATable');
-
-      var drawsTable = $('#draws-table').WATable({
-            pageSize: 20,                //Sets the initial pagesize
-            filter: true,               //Show filter fields
-            columnPicker: true,         //Show the columnPicker button
-            pageSizes: [20, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
-            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
-            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
-            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
-            types: {                    //Following are some specific properties related to the data types
-                string: {
-                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
-                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
-                },
-                number: {
-                    decimals: 1   //Sets decimal precision for float types
-                },
-                bool: {
-                    //filterTooltip: false
-                },
-                date: {
-                  utc: true,            //Show time as universal time, ie without timezones.
-                  format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
-                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
-                }
-            },
-            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
-                
-                data.event.preventDefault();
-                $.get('api/fixture/next', {teamName: data.row.teamName}, function(response) {
-                  var row = {};
-                  row.fixtureId = response.ID;
-                  row.homeTeam = response.HOME_TEAM;
-                  row.awayTeam = response.AWAY_TEAM;
-                  row.teamName = data.row.teamName;
-                  window.modalData = {};
-                  window.modalData = row;
-                  window.modalData.submitType = 'draw';
-                  $('#myModal').modal();
-                });
-                
-            }
-        }).data('WATable');
-
-          var fixtureCols = {
+    function refreshTables() {
+      var fixtureCols = {
               fixtureId: {
                 index: 1,
                 type: "number",
@@ -572,6 +403,184 @@
           
           drawsTable.setData({cols: drawsCols, rows: drawsRows});
       });
+    }
+
+      $(document).ready( function() {
+        $('#refreshDataButton').on('click', function(e) {
+          $('#loading-indicator').show();
+          $.post('internal/fixtures', function(data) {
+            $('#loading-indicator').hide();
+            refreshTables();
+          });
+        });
+
+        $.get('api/money', function(data) {
+          $('#inplayContainer').text('Inplay: ' + data.inplay);
+          $('#profitContainer').text('Profit: ' + data.profit);
+
+          if (data.profit >= 0) {
+            $('#profitContainer').attr('class', 'profitPositive');
+          } else if (data.profit < 0) {
+            $('#profitContainer').attr('class', 'profitNegative');
+          }
+          
+        });
+
+        $('#refreshSequencesButton').on('click', function(e) {
+          $('#loading-indicator').show();
+          $.post('internal/sequence/advance', function(data) {
+            $('#loading-indicator').hide();
+            refreshTables();
+          });
+        });
+
+        $('#myModal').on('show', function (e) {
+            $('#fixtureId').val(window.modalData.fixtureId);
+            $('#homeTeam').val(window.modalData.homeTeam);
+            $('#awayTeam').val(window.modalData.awayTeam);
+            $('#teamName').val(window.modalData.teamName);
+        });
+
+        $('#myModal').on('hidden', function() {
+          resetForm($('#start-sequence-form'));
+        });
+
+        $('#modalSubmit').on('click', function(e) {
+
+          var data = $("#start-sequence-form").serialize();
+          if (window.modalData !== 'undefined' && window.modalData.submitType !== 'undefined') {
+            if (window.modalData.submitType === 'draw') {
+              $.post('api/bet', data, function(response) {
+                $.post('api/sequence', data, function(response2) {
+                  console.log('bet and sequence created');
+                  $('#myModal').modal('hide');
+                  refreshTables();
+                });
+              });
+            } else if (window.modalData.submitType === 'sequence') {
+               $.post('api/bet', data, function(response) {
+                console.log('bet placed');
+                refreshTables();
+               });
+            }
+
+          window.modalData = {};
+          $('#myModal').modal('hide');
+        }
+      });
+
+      window.fixtureTable = $('#fixture-table').WATable({
+          pageSize: 50,                //Sets the initial pagesize
+          filter: true,               //Show filter fields
+          columnPicker: true,         //Show the columnPicker button
+          pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+          hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+          checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+          preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+          types: {                    //Following are some specific properties related to the data types
+              string: {
+                  //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                  //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
+              },
+              number: {
+                  decimals: 1   //Sets decimal precision for float types
+              },
+              bool: {
+                  //filterTooltip: false
+              },
+              date: {
+                utc: true,            //Show time as universal time, ie without timezones.
+                format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+                datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
+              }
+          },
+          rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+              data.event.preventDefault();
+              window.modalData = data.row;                             
+              $('#myModal').modal();
+          }
+      }).data('WATable');
+
+      window.sequenceTable = $('#sequence-table').WATable({
+            pageSize: 50,                //Sets the initial pagesize
+            filter: true,               //Show filter fields
+            columnPicker: true,         //Show the columnPicker button
+            pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+            types: {                    //Following are some specific properties related to the data types
+                string: {
+                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
+                },
+                number: {
+                    decimals: 1   //Sets decimal precision for float types
+                },
+                bool: {
+                    //filterTooltip: false
+                },
+                date: {
+                  utc: true,            //Show time as universal time, ie without timezones.
+                  format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
+                }
+            },
+            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+                data.event.preventDefault();
+                console.log(data.row);
+                window.modalData = {};
+                window.modalData = data.row;
+                window.modalData.submitType = 'sequence';
+
+                $('#myModal').modal();
+            }
+        }).data('WATable');
+
+      window.drawsTable = $('#draws-table').WATable({
+            pageSize: 20,                //Sets the initial pagesize
+            filter: true,               //Show filter fields
+            columnPicker: true,         //Show the columnPicker button
+            pageSizes: [20, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+            types: {                    //Following are some specific properties related to the data types
+                string: {
+                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
+                },
+                number: {
+                    decimals: 1   //Sets decimal precision for float types
+                },
+                bool: {
+                    //filterTooltip: false
+                },
+                date: {
+                  utc: true,            //Show time as universal time, ie without timezones.
+                  format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
+                }
+            },
+            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+                
+                data.event.preventDefault();
+                $.get('api/fixture/next', {teamName: data.row.teamName}, function(response) {
+                  var row = {};
+                  row.fixtureId = response.ID;
+                  row.homeTeam = response.HOME_TEAM;
+                  row.awayTeam = response.AWAY_TEAM;
+                  row.teamName = data.row.teamName;
+                  window.modalData = {};
+                  window.modalData = row;
+                  window.modalData.submitType = 'draw';
+                  $('#myModal').modal();
+                });
+                
+            }
+        }).data('WATable');
+
+          refreshTables();
 
     });
     </script>
