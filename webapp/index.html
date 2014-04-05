@@ -538,10 +538,10 @@
         }).data('WATable');
 
       window.drawsTable = $('#draws-table').WATable({
-            pageSize: 20,                //Sets the initial pagesize
+            pageSize: 50,                //Sets the initial pagesize
             filter: true,               //Show filter fields
             columnPicker: true,         //Show the columnPicker button
-            pageSizes: [20, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+            pageSizes: [20,50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
             hidePagerOnEmpty: true,     //Removes the pager if data is empty.
             checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
             preFill: true,               //Use POST httpmethod to webservice. Default is GET.
