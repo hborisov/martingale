@@ -112,7 +112,8 @@
           </a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
+              <li id="home-navigation" class="active"><a href="#">Home</a></li>
+              <li id="fixtures-navigation" class="active"><a href="#">Fixtures</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
               <li><button id="refreshDataButton" type="button" class="btn btn-info">1. Get Data</button></li>
@@ -128,9 +129,9 @@
     </div>
 
     <div class="container">
-      <div class="row ">
-        <h1>Sequences</h1>
-        <div class="btn-group span10" data-toggle="buttons-radio">
+      <div class="row">&nbsp;</div>
+      <div class="row">
+        <div id="leagues-nav-bar" class="btn-group span10" data-toggle="buttons-radio">
           <button id="pr-sequences" type="button" class="btn"><img src='img/PR.gif'/>&nbsp;PR</button>
           <button id="ech-sequences" type="button" class="btn"><img src='img/ECH.gif'/>&nbsp;ECH</button>
           <button id="bl-sequences" type="button" class="btn"><img src='img/BL.gif'/>&nbsp;BL 1</button>
@@ -140,20 +141,23 @@
           <button id="a-sequences" type="button" class="btn"><img src='img/A.gif'/>&nbsp;SE A</button>
           <button id="b-sequences" type="button" class="btn"><img src='img/B.gif'/>&nbsp;SE B</button>
         </div>
+      </div>
+      <div id="sequences-row" class="row">
+        <h1>Sequences</h1>
         <div class="span10">
           <div id="sequence-table"></div>
         </div>
       </div>
-      <div class="row ">
-        <h1>Fixtures</h1>
-        <div class="span10">
-          <div id="fixture-table"></div>
-        </div>
-      </div>
-      <div class="row ">
+      <div id="nodraws-row" class="row ">
         <h1>Nodraws</h1>
         <div class="span10">
           <div id="draws-table"></div>
+        </div>
+      </div>
+      <div id="fixtures-row" class="row ">
+        <h1>Fixtures</h1>
+        <div class="span10">
+          <div id="fixture-table"></div>
         </div>
       </div>
 
@@ -165,333 +169,84 @@
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="js/bootstrap.min.js"></script> <!--//netdna.bootstrapcdn.com/bootstrap/3.0.3/-->
     <script src="js/jquery.watable.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/main.js" type="text/javascript" charset="utf-8"></script>
      <!--<script src="/static/datepicker/bootstrap-datepicker.js" type="text/javascript" charset="utf-8"></script>-->
     <script type="text/javascript">
-    function resetForm($form) {
-      $form.find('input:text, input:password, input:file, select, textarea').val('');
-      $form.find('input:radio, input:checkbox').removeAttr('checked').removeAttr('selected');
-    }
+    $(document).ready( function() {
+      $.get('api/money', function(data) {
+        $('#inplayContainer').text('Inplay: ' + data.inplay);
+        $('#profitContainer').text('Profit: ' + data.profit);
 
-    function refreshTables() {
-      var fixtureCols = {
-              fixtureId: {
-                index: 1,
-                type: "number",
-                unique: true,
-                hidden: true
-              },
-              div: {
-                index: 2,
-                type: "string",
-                friendly: "Division"
-              },
-              matchDate: {
-                index: 3,
-                type: "date",
-                friendly: "Match Date"
-              },
-              homeTeam: {
-                index: 4,
-                type: "string",
-                friendly: "Home Team"
-              },
-              awayTeam: {
-                index: 5,
-                type: "string",
-                friendly: "Away Team"
-              },
-              ftHomeGoals: {
-                index: 6,
-                type: "number",
-                friendly: "FT Home Goals"
-              },
-              ftAwayGoals: {
-                index: 7,
-                type: "number",
-                friendly: "FT Away Goals"
-              },
-              ftResult: {
-                index: 8,
-                type: "string",
-                friendly: "FT Result"
-              },
-              status: {
-                index: 9,
-                type: "string",
-                friendly: "Status"
-              }
-            };
-          
+        if (data.profit >= 0) {
+          $('#profitContainer').attr('class', 'profitPositive');
+        } else if (data.profit < 0) {
+          $('#profitContainer').attr('class', 'profitNegative');
+        }
+        
+      });
 
-          var fixtureRows = [];
-          $.get('api/fixture', function(data) {
-            for (var i=0; i<data.length; i++) {
-              var row = {};
-              row.fixtureId = data[i].ID;
-              row.div = data[i].DIVISION;
-              row.divFormat = "<img src='img/" + row.div + ".gif' />&nbsp;&nbsp;{0}";
-              row.matchDate = data[i].MATCH_DATE;
-              row.homeTeam = data[i].HOME_TEAM;
-              row.awayTeam = data[i].AWAY_TEAM;
-              row.ftHomeGoals = data[i].FT_HOME_GOALS;
-              row.ftAwayGoals = data[i].FT_AWAY_GOALS;
-              row.ftResult = data[i].FT_RESULT;
-              row.status = data[i].STATUS;
-              fixtureRows.push(row);
-            }
+      $('#fixtures-row').hide();
 
-            var enddata = {
-              cols: fixtureCols,
-              rows: fixtureRows
-            };
-            
-            fixtureTable.setData(enddata);
-          });
+      $('#home-navigation').on('click', function(e) {
+        $('#fixtures-row').hide();
 
-          window.sequenceCols = {
-                  internalId: {
-                    index: 1,
-                    type: "number",
-                    unique: true,
-                    hidden: true
-                  },
-                  id: {
-                    index: 2,
-                    type: "string",
-                    hidden: true
-                  },
-                  team: {
-                    index: 3,
-                    type: "string",
-                    friendly: "Team"
-                  },
-                  status: {
-                    index: 4,
-                    type: "string",
-                    friendly: "Sequence Status"
-                  },
-                  dateStarted: {
-                    index: 5,
-                    type: "date",
-                    friendly: "Date Started"
-                  },
-                  fixtureId: {
-                    index: 6,
-                    type: "number",
-                    hidden: true
-                  },
-                  division: {
-                    index: 7,
-                    type: "string",
-                    friendly: "Division"
-                  },
-                  fixtureDate: {
-                    index: 8,
-                    type: "date",
-                    friendly: "Fixture Date"
-                  },
-                  homeTeam: {
-                    index: 9,
-                    type: "string",
-                    friendly: "Home Team"
-                  },
-                  awayTeam: {
-                    index: 10,
-                    type: "string",
-                    friendly: "Away Team"
-                  },
-                  amount: {
-                    index: 11,
-                    type: "number",
-                    friendly: "Amount Put"
-                  },
-                  odd: {
-                    index: 12,
-                    type: "number",
-                    friendly: "Odd"
-                  },
-                  result: {
-                    index: 13,
-                    type: "string",
-                    friendly: "Result"
-                  }
-                };
+        $('#leagues-nav-bar').show();
+        $('#sequences-row').show();
+        $('#nodraws-row').show();
+      });
 
-          var sequenceRows = [];
-          window.sequenceLeagues = {
-            'PR' : [],
-            'ECH' : [],
-            'L1' : [],
-            'L2' : [],
-            'A' : [],
-            'B' : [],
-            'BL' : [],
-            '2BL' : []
-          };
-          $.get('api/sequence', function(sequenceData) {
-            $.get('api/fixture', function(fixtureData) {
-              $.get('api/bet', function(betData) {
-                var internalId = 0;
-                for (var i=0; i<sequenceData.length; i++) {
+      $('#fixtures-navigation').on('click', function(e) {
+        $('#leagues-nav-bar').hide();
+        $('#sequences-row').hide();
+        $('#nodraws-row').hide();
 
-                  if (sequenceData[i].status === 'FINISHED') {
-                    continue;
-                  }
+        $('#fixtures-row').show();
+      });
 
-                  internalId++;
-                  var mainSequenceRow = {};
-                  mainSequenceRow.internalId = internalId;
-                  mainSequenceRow.id = sequenceData[i].id;
-                  mainSequenceRow.team = sequenceData[i].team;
-                  mainSequenceRow.status = sequenceData[i].status;
-                  mainSequenceRow.dateStarted = sequenceData[i].dateStarted;
-                  //sequenceRows.push(sequenceRow);
-                  var isSequencePushed = false;
+      $('#refreshDataButton').on('click', function(e) {
+        $('#loading-indicator').show();
+        $.post('internal/fixtures', function(data) {
+          $('#loading-indicator').hide();
+          refreshTables();
+        });
+      });
 
-                  for (var j=0; j<sequenceData[i].steps.length; j++) {
-                    var fixtureId = parseInt(sequenceData[i].steps[j].fixtureId, 10);
-                    for (var p=0; p<fixtureData.length; p++) {
-                      if (fixtureData[p].ID === fixtureId) {
-                        var fixture = fixtureData[p];
-                      }
-                    }
+      $('#refreshSequencesButton').on('click', function(e) {
+        $('#loading-indicator').show();
+        $.post('internal/sequence/advance', function(data) {
+          $('#loading-indicator').hide();
+          refreshTables();
+        });
+      });
 
-                    internalId++;
-                    var sequenceRow = {};
-                    sequenceRow.internalId = internalId;
-                    sequenceRow.fixtureId = fixture.ID;
-                    sequenceRow.division = fixture.DIVISION;
-                    sequenceRow.divisionFormat = "<img src='img/" + fixture.DIVISION + ".gif' />&nbsp;&nbsp;{0}";
-                    sequenceRow.fixtureDate = fixture.MATCH_DATE;
-                    sequenceRow.homeTeam = fixture.HOME_TEAM;
-                    sequenceRow.awayTeam = fixture.AWAY_TEAM;
-                    if (sequenceData[i].team === fixture.HOME_TEAM) {
-                      sequenceRow.homeTeamFormat = "<strong>{0}</strong>";
-                    }
-                    if (sequenceData[i].team === fixture.AWAY_TEAM) {
-                      sequenceRow.awayTeamFormat = "<strong>{0}</strong>";
-                    }
+      $('#myModal').on('show', function (e) {
+          $('#fixtureId').val(window.modalData.fixtureId);
+          $('#homeTeam').val(window.modalData.homeTeam);
+          $('#awayTeam').val(window.modalData.awayTeam);
+          $('#teamName').val(window.modalData.teamName);
+      });
 
-                    for (var q=0; q<betData.length; q++) {
-                      if (betData[q].FIXTURE_ID === sequenceData[i].steps[j].fixtureId) {
-                        sequenceRow.amount = betData[q].AMOUNT;
-                        sequenceRow.odd = betData[q].ODD;
-                        sequenceRow.result = betData[q].RESULT;
-                        var resultClass = '';
-                        if (sequenceRow.result === 'WIN') {
-                          resultClass = 'green';
-                        } else if (sequenceRow.result === 'LOSE') {
-                          resultClass = 'red';
-                        } else if (sequenceRow.result === 'PENDING') {
-                          resultClass = 'yellow';
-                        }
-                        sequenceRow.resultFormat = "<div class='" + resultClass + "'>{0}</div>";
-                      }
-                    }
+      $('#myModal').on('hidden', function() {
+        resetForm($('#start-sequence-form'));
+      });
 
-                    //sequenceRows.push(sequenceRow);
-                    if (!isSequencePushed) {
-                      sequenceLeagues[fixture.DIVISION].push(mainSequenceRow);
-                      isSequencePushed = true;
-                    }
-                    sequenceLeagues[fixture.DIVISION].push(sequenceRow);
-
-                  }
-                }
-
-                sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['PR']});
+      $('#modalSubmit').on('click', function(e) {
+        var data = $("#start-sequence-form").serialize();
+        if (window.modalData !== 'undefined' && window.modalData.submitType !== 'undefined') {
+          if (window.modalData.submitType === 'draw') {
+            $.post('api/bet', data, function(response) {
+              $.post('api/sequence', data, function(response2) {
+                console.log('bet and sequence created');
+                $('#myModal').modal('hide');
+                refreshTables();
               });
             });
-          });
-
-      var drawsCols = {
-          teamName: {
-            index: 1,
-            type: "string",
-            unique: true,
-            friendly: "Team Name"
-          },
-          division: {
-            index: 2,
-            type: "string",
-            friendly: "Division"
-          },
-          series: {
-            index: 3,
-            type: "number",
-            friendly: "Matches wo Draw"
+          } else if (window.modalData.submitType === 'sequence') {
+             $.post('api/bet', data, function(response) {
+              console.log('bet placed');
+              refreshTables();
+             });
           }
-        };
-
-      var drawsRows = [];
-      $.get('api/draws', function(drawsData) {
-          drawsRows = drawsData;
-          for (var i=0; i<drawsRows.length; i++) {
-            drawsRows[i].divisionFormat = "<img src='img/" + drawsRows[i].division + ".gif' />&nbsp;&nbsp;{0}";  
-          }
-          
-          drawsTable.setData({cols: drawsCols, rows: drawsRows});
-      });
-    }
-
-      $(document).ready( function() {
-        $('#refreshDataButton').on('click', function(e) {
-          $('#loading-indicator').show();
-          $.post('internal/fixtures', function(data) {
-            $('#loading-indicator').hide();
-            refreshTables();
-          });
-        });
-
-        $.get('api/money', function(data) {
-          $('#inplayContainer').text('Inplay: ' + data.inplay);
-          $('#profitContainer').text('Profit: ' + data.profit);
-
-          if (data.profit >= 0) {
-            $('#profitContainer').attr('class', 'profitPositive');
-          } else if (data.profit < 0) {
-            $('#profitContainer').attr('class', 'profitNegative');
-          }
-          
-        });
-
-        $('#refreshSequencesButton').on('click', function(e) {
-          $('#loading-indicator').show();
-          $.post('internal/sequence/advance', function(data) {
-            $('#loading-indicator').hide();
-            refreshTables();
-          });
-        });
-
-        $('#myModal').on('show', function (e) {
-            $('#fixtureId').val(window.modalData.fixtureId);
-            $('#homeTeam').val(window.modalData.homeTeam);
-            $('#awayTeam').val(window.modalData.awayTeam);
-            $('#teamName').val(window.modalData.teamName);
-        });
-
-        $('#myModal').on('hidden', function() {
-          resetForm($('#start-sequence-form'));
-        });
-
-        $('#modalSubmit').on('click', function(e) {
-
-          var data = $("#start-sequence-form").serialize();
-          if (window.modalData !== 'undefined' && window.modalData.submitType !== 'undefined') {
-            if (window.modalData.submitType === 'draw') {
-              $.post('api/bet', data, function(response) {
-                $.post('api/sequence', data, function(response2) {
-                  console.log('bet and sequence created');
-                  $('#myModal').modal('hide');
-                  refreshTables();
-                });
-              });
-            } else if (window.modalData.submitType === 'sequence') {
-               $.post('api/bet', data, function(response) {
-                console.log('bet placed');
-                refreshTables();
-               });
-            }
 
           window.modalData = {};
           $('#myModal').modal('hide');
@@ -500,37 +255,45 @@
 
       $('#pr-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['PR']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['PR']});
       });
 
       $('#ech-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['ECH']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['ECH']});
       });
 
       $('#l1-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['L1']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['L1']});
       });
 
       $('#l2-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['L2']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['L2']});
       });
 
       $('#a-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['A']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['A']});
       });
 
       $('#b-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['B']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['B']});
       });
 
       $('#bl-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['BL']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['BL']});
       });
 
       $('#2bl-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['2BL']});
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['2BL']});
       });
 
-      window.fixtureTable = $('#fixture-table').WATable({
+    window.sequenceTable = $('#sequence-table').WATable({
           pageSize: 50,                //Sets the initial pagesize
           filter: true,               //Show filter fields
           columnPicker: true,         //Show the columnPicker button
@@ -557,91 +320,91 @@
           },
           rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
               data.event.preventDefault();
-              window.modalData = data.row;                             
+              console.log(data.row);
+              window.modalData = {};
+              window.modalData = data.row;
+              window.modalData.submitType = 'sequence';
+
               $('#myModal').modal();
           }
       }).data('WATable');
 
-      window.sequenceTable = $('#sequence-table').WATable({
-            pageSize: 50,                //Sets the initial pagesize
-            filter: true,               //Show filter fields
-            columnPicker: true,         //Show the columnPicker button
-            pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
-            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
-            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
-            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
-            types: {                    //Following are some specific properties related to the data types
-                string: {
-                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
-                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
-                },
-                number: {
-                    decimals: 1   //Sets decimal precision for float types
-                },
-                bool: {
-                    //filterTooltip: false
-                },
-                date: {
-                  utc: true,            //Show time as universal time, ie without timezones.
-                  format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
-                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
-                }
-            },
-            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
-                data.event.preventDefault();
-                console.log(data.row);
+    window.drawsTable = $('#draws-table').WATable({
+          pageSize: 50,                //Sets the initial pagesize
+          filter: true,               //Show filter fields
+          columnPicker: true,         //Show the columnPicker button
+          pageSizes: [20,50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+          hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+          checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+          preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+          types: {                    //Following are some specific properties related to the data types
+              string: {
+                  //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                  //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
+              },
+              number: {
+                  decimals: 1   //Sets decimal precision for float types
+              },
+              bool: {
+                  //filterTooltip: false
+              },
+              date: {
+                utc: true,            //Show time as universal time, ie without timezones.
+                format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+                datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
+              }
+          },
+          rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+              
+              data.event.preventDefault();
+              $.get('api/fixture/next', {teamName: data.row.teamName}, function(response) {
+                var row = {};
+                row.fixtureId = response.ID;
+                row.homeTeam = response.HOME_TEAM;
+                row.awayTeam = response.AWAY_TEAM;
+                row.teamName = data.row.teamName;
                 window.modalData = {};
-                window.modalData = data.row;
-                window.modalData.submitType = 'sequence';
-
+                window.modalData = row;
+                window.modalData.submitType = 'draw';
                 $('#myModal').modal();
-            }
-        }).data('WATable');
+              });
+              
+          }
+      }).data('WATable');
 
-      window.drawsTable = $('#draws-table').WATable({
-            pageSize: 50,                //Sets the initial pagesize
-            filter: true,               //Show filter fields
-            columnPicker: true,         //Show the columnPicker button
-            pageSizes: [20,50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
-            hidePagerOnEmpty: true,     //Removes the pager if data is empty.
-            checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
-            preFill: true,               //Use POST httpmethod to webservice. Default is GET.
-            types: {                    //Following are some specific properties related to the data types
-                string: {
-                    //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
-                    //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
-                },
-                number: {
-                    decimals: 1   //Sets decimal precision for float types
-                },
-                bool: {
-                    //filterTooltip: false
-                },
-                date: {
-                  utc: true,            //Show time as universal time, ie without timezones.
-                  format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
-                  datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
-                }
+      window.fixtureTable = $('#fixture-table').WATable({
+        pageSize: 50,                //Sets the initial pagesize
+        filter: true,               //Show filter fields
+        columnPicker: true,         //Show the columnPicker button
+        pageSizes: [15, 50,100,200,500],  //Set custom pageSizes. Leave empty array to hide button.
+        hidePagerOnEmpty: true,     //Removes the pager if data is empty.
+        checkboxes: true,           //Make rows checkable. (Note. You need a column with the 'unique' property)
+        preFill: true,               //Use POST httpmethod to webservice. Default is GET.
+        types: {                    //Following are some specific properties related to the data types
+            string: {
+                //filterTooltip: "Giggedi..."    //What to say in tooltip when hoovering filter fields. Set false to remove.
+                //placeHolder: "Type here..."    //What to say in placeholder filter fields. Set false for empty.
             },
-            rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
-                
-                data.event.preventDefault();
-                $.get('api/fixture/next', {teamName: data.row.teamName}, function(response) {
-                  var row = {};
-                  row.fixtureId = response.ID;
-                  row.homeTeam = response.HOME_TEAM;
-                  row.awayTeam = response.AWAY_TEAM;
-                  row.teamName = data.row.teamName;
-                  window.modalData = {};
-                  window.modalData = row;
-                  window.modalData.submitType = 'draw';
-                  $('#myModal').modal();
-                });
-                
+            number: {
+                decimals: 1   //Sets decimal precision for float types
+            },
+            bool: {
+                //filterTooltip: false
+            },
+            date: {
+              utc: true,            //Show time as universal time, ie without timezones.
+              format: 'yyyy-MM-dd',   //The format. See all possible formats here http://arshaw.com/xdate/#Formatting.
+              datePicker: true      //Requires "Datepicker for Bootstrap" plugin (http://www.eyecon.ro/bootstrap-datepicker).
             }
-        }).data('WATable');
+        },
+        rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+            data.event.preventDefault();
+            window.modalData = data.row;                             
+            $('#myModal').modal();
+        }
+      }).data('WATable');
 
-          refreshTables();
+        refreshTables();
 
     });
     </script>
