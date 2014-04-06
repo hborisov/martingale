@@ -382,6 +382,8 @@
                           resultClass = 'green';
                         } else if (sequenceRow.result === 'LOSE') {
                           resultClass = 'red';
+                        } else if (sequenceRow.result === 'PENDING') {
+                          resultClass = 'yellow';
                         }
                         sequenceRow.resultFormat = "<div class='" + resultClass + "'>{0}</div>";
                       }
