@@ -263,14 +263,23 @@ function refreshTables() {
 
     var drawsRows = [];
     $.get('api/draws', function(drawsData) {
+      $.get('api/sequence', function(sequenceData) {
         drawsRows = drawsData;
         for (var i=0; i<drawsRows.length; i++) {
           drawsRows[i].divisionFormat = "<img src='img/" + drawsRows[i].division + ".gif' />&nbsp;&nbsp;{0}";  
+          
+          
+          for (var j=0; j<sequenceData.length; j++) {
+            if (sequenceData[j].status !== 'FINISHED' && sequenceData[j].team === drawsRows[i].teamName) {
+              drawsRows[i].teamNameFormat = "<div class='red'>{0}</div>";
+            }
+          }
           nodrawsLeagues[drawsRows[i].division].push(drawsRows[i]);
         }
         
         var selectLeague = window.selectedLeague || 'PR';
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues[selectLeague]});
+      });
     });
 }
 
