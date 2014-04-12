@@ -225,7 +225,8 @@ function refreshTables() {
                 }
               }
 
-              sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['PR']});
+              var selectLeague = window.selectedLeague || 'PR';
+              sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues[selectLeague]});
             });
           });
         });
@@ -268,7 +269,8 @@ function refreshTables() {
           nodrawsLeagues[drawsRows[i].division].push(drawsRows[i]);
         }
         
-        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['PR']});
+        var selectLeague = window.selectedLeague || 'PR';
+        drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues[selectLeague]});
     });
 }
 

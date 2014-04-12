@@ -257,41 +257,49 @@
       $('#pr-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['PR']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['PR']});
+        window.selectedLeague = 'PR';
       });
 
       $('#ech-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['ECH']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['ECH']});
+        window.selectedLeague = 'ECH';
       });
 
       $('#l1-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['L1']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['L1']});
+        window.selectedLeague = 'L1';
       });
 
       $('#l2-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['L2']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['L2']});
+        window.selectedLeague = 'L2';
       });
 
       $('#a-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['A']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['A']});
+        window.selectedLeague = 'A';
       });
 
       $('#b-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['B']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['B']});
+        window.selectedLeague = 'B';
       });
 
       $('#bl-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['BL']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['BL']});
+        window.selectedLeague = 'BL';
       });
 
       $('#2bl-sequences').on('click', function(e) {
         sequenceTable.setData({cols: sequenceCols, rows: sequenceLeagues['2BL']});
         drawsTable.setData({cols: drawsCols, rows: nodrawsLeagues['2BL']});
+        window.selectedLeague = '2BL';
       });
 
     window.sequenceTable = $('#sequence-table').WATable({
